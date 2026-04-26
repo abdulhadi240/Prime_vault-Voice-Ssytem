@@ -7,6 +7,7 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
 import { format, subDays } from 'date-fns';
+import { Phone, Clock, BarChart2, CalendarCheck, XCircle, Users } from 'lucide-react';
 
 const COLORS = ['#4f8ef7', '#7c3aed', '#f59e0b', '#10b981', '#ef4444', '#06b6d4'];
 
@@ -100,12 +101,12 @@ export default function OverviewPage() {
   }, []);
 
   const STAT_CARDS = [
-    { label: 'Total Calls', value: stats.calls, icon: '📞', color: '#4f8ef7' },
-    { label: 'Total Minutes', value: stats.minutes, icon: '⏱', color: '#7c3aed' },
-    { label: 'Avg Duration', value: formatDuration(stats.avgDuration), icon: '📊', color: '#10b981' },
-    { label: 'Bookings', value: stats.booked, icon: '📅', color: '#f59e0b' },
-    { label: 'Cancelled', value: stats.cancelled, icon: '❌', color: '#ef4444' },
-    { label: 'Customers', value: stats.customers, icon: '👥', color: '#06b6d4' },
+    { label: 'Total Calls', value: stats.calls, icon: <Phone size={20} />, color: '#4f8ef7' },
+    { label: 'Total Minutes', value: stats.minutes, icon: <Clock size={20} />, color: '#7c3aed' },
+    { label: 'Avg Duration', value: formatDuration(stats.avgDuration), icon: <BarChart2 size={20} />, color: '#10b981' },
+    { label: 'Bookings', value: stats.booked, icon: <CalendarCheck size={20} />, color: '#f59e0b' },
+    { label: 'Cancelled', value: stats.cancelled, icon: <XCircle size={20} />, color: '#ef4444' },
+    { label: 'Customers', value: stats.customers, icon: <Users size={20} />, color: '#06b6d4' },
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -141,7 +142,7 @@ export default function OverviewPage() {
         {STAT_CARDS.map((s, i) => (
           <div key={i} className="stat-card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ fontSize: 20 }}>{s.icon}</span>
+              <span style={{ color: s.color, display: 'flex' }}>{s.icon}</span>
               <div style={{ width: 8, height: 8, borderRadius: '50%', background: s.color }} />
             </div>
             <div className="font-display" style={{ fontSize: 28, fontWeight: 700, color: s.color, lineHeight: 1 }}>
