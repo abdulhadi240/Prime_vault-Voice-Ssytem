@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -18,9 +16,9 @@
   --success: #4ade80;
   --warning: #fbbf24;
   --shadow: 0 2px 12px rgba(0,0,0,0.4);
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --font-mono: 'DM Mono', monospace;
+  --font-display: var(--inter, 'Inter', sans-serif);
+  --font-body: var(--inter, 'Inter', sans-serif);
+  --font-mono: var(--dm-mono, 'DM Mono', monospace);
 }
 
 /* ── LIGHT MODE ── */
