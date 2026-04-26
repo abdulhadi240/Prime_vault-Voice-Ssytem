@@ -5,10 +5,10 @@ type Theme = 'dark' | 'light';
 const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({ theme: 'dark', toggle: () => {} });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light');
 
   useEffect(() => {
-    const saved = (localStorage.getItem('theme') as Theme) || 'dark';
+    const saved = (localStorage.getItem('theme') as Theme) || 'light';
     setTheme(saved);
     document.documentElement.setAttribute('data-theme', saved);
   }, []);
