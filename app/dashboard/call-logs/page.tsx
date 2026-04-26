@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase, type CallLog } from '@/lib/supabase';
-import { formatDuration, formatDateTime } from '@/lib/utils';
+import { formatDuration, formatDateTime, getCallStatusStyle } from '@/lib/utils';
 import { Download, Search, ChevronDown } from 'lucide-react';
 
 export default function CallLogsPage() {
@@ -60,7 +60,7 @@ export default function CallLogsPage() {
       formatDateTime(c.created_at),
       formatDuration(c.duration),
       c.status || '',
-      ((c as any).cost || 0).toFixed(4),
+      Number((c as any).cost || 0).toFixed(4),
       (c.summary || '').replace(/,/g, ';'),
     ]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
@@ -117,7 +117,7 @@ export default function CallLogsPage() {
               <div style={{ fontSize: 12 }}>{formatDateTime(call.created_at)}</div>
               <div style={{ fontSize: 12 }}>{formatDuration(call.duration)}</div>
               <div>
-                <span className="badge" style={{ background: '#4f8ef720', color: '#4f8ef7', fontSize: 10 }}>
+                <span className="badge" style={{ fontSize: 10, ...getCallStatusStyle(call.status || 'ended') }}>
                   {call.status || 'ended'}
                 </span>
               </div>
@@ -135,7 +135,7 @@ export default function CallLogsPage() {
                     <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Summary</div>
                     <div style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6 }}>{call.summary || 'No summary available.'}</div>
                     <div style={{ marginTop: 10, fontSize: 12, color: 'var(--muted)' }}>
-                      Cost: <span style={{ color: 'var(--text)' }}>${((call as any).cost || 0).toFixed(4)}</span>
+                      Cost: <span style={{ color: 'var(--text)' }}>${Number((call as any).cost || 0).toFixed(4)}</span>
                     </div>
                   </div>
 
