@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase, type Customer, type Appointment, type CallLog } from '@/lib/supabase';
 import { formatDate, formatDateTime, formatDuration, getStatusColor } from '@/lib/utils';
+import { Search, Users, Phone, MapPin } from 'lucide-react';
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -50,7 +51,7 @@ export default function CustomersPage() {
           <h1 className="font-display" style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 4 }}>Customers</h1>
           <p style={{ color: 'var(--muted)', fontSize: 12 }}>{customers.length} total</p>
           <div style={{ marginTop: 16, position: 'relative' }}>
-            <svg style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
             <input className="input" style={{ paddingLeft: 32 }} placeholder="Search customers..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
         </div>
@@ -97,7 +98,7 @@ export default function CustomersPage() {
       <div style={{ flex: 1, overflowY: 'auto', padding: '28px 32px' }}>
         {!selected ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted)' }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ marginBottom: 16, opacity: 0.3 }}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <Users size={48} style={{ marginBottom: 16, opacity: 0.3 }} />
             <p style={{ fontSize: 14 }}>Select a customer to view their profile</p>
           </div>
         ) : (
@@ -115,8 +116,14 @@ export default function CustomersPage() {
               <div>
                 <h2 className="font-display" style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em' }}>{selected.name}</h2>
                 <div style={{ display: 'flex', gap: 20, marginTop: 6 }}>
-                  <span style={{ fontSize: 13, color: 'var(--muted)' }}>📞 {selected.phone}</span>
-                  {selected.address && <span style={{ fontSize: 13, color: 'var(--muted)' }}>📍 {selected.address}</span>}
+                  <span style={{ fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <Phone size={13} /> {selected.phone}
+                  </span>
+                  {selected.address && (
+                    <span style={{ fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <MapPin size={13} /> {selected.address}
+                    </span>
+                  )}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>Customer since {formatDate(selected.created_at)}</div>
               </div>
