@@ -49,7 +49,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       cursor: 'pointer', color: 'var(--muted)', transition: 'all 0.2s', flexShrink: 0,
     }}>
       {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-
     </button>
   );
 
@@ -77,7 +76,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             cursor: 'pointer', color: 'var(--text)',
           }}>
             {sidebarOpen ? <X size={18} /> : <Menu size={18} />}
-
           </button>
         </div>
       </div>
