@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { AlertTriangle, CheckCircle } from 'lucide-react';
 
 export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
@@ -78,7 +79,7 @@ export default function SettingsPage() {
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {saved && (
             <span style={{ fontSize: 12, color: 'var(--success)', display: 'flex', alignItems: 'center', gap: 6 }}>
-              ✓ Saved successfully
+              <CheckCircle size={13} /> Saved successfully
             </span>
           )}
           <button onClick={handleSave} className="btn-primary">Save Changes</button>
@@ -95,7 +96,9 @@ export default function SettingsPage() {
 
       <Section title="API Keys">
         <div style={{ background: '#f59e0b15', border: '1px solid #f59e0b30', borderRadius: 8, padding: '10px 14px', marginBottom: 8 }}>
-          <p style={{ fontSize: 12, color: '#f59e0b' }}>⚠️ Keep these keys secret. Never share them publicly.</p>
+          <p style={{ fontSize: 12, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <AlertTriangle size={13} /> Keep these keys secret. Never share them publicly.
+          </p>
         </div>
         <Field label="Vapi API Key" value={settings.vapiApiKey} masked onChange={(v: string) => setSettings({ ...settings, vapiApiKey: v })} />
         <Field label="Supabase URL" value={settings.supabaseUrl} onChange={(v: string) => setSettings({ ...settings, supabaseUrl: v })} />
