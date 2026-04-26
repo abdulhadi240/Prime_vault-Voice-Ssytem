@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase, type CallLog } from '@/lib/supabase';
 import { formatDuration, formatDateTime } from '@/lib/utils';
+import { Download, Search, ChevronDown } from 'lucide-react';
 
 export default function CallLogsPage() {
   const [calls, setCalls] = useState<CallLog[]>([]);
@@ -79,14 +80,14 @@ export default function CallLogsPage() {
           <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 3 }}>{calls.length} total calls recorded</p>
         </div>
         <button onClick={exportCSV} className="btn-ghost" style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <Download size={13} />
           Export CSV
         </button>
       </div>
 
       {/* Search */}
       <div style={{ marginBottom: 20, position: 'relative' }}>
-        <svg style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
         <input className="input" style={{ paddingLeft: 36, maxWidth: 380 }} placeholder="Search by customer, phone, summary..." value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
@@ -121,10 +122,7 @@ export default function CallLogsPage() {
                 </span>
               </div>
               <div style={{ color: 'var(--muted)', textAlign: 'center' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                  style={{ transform: expanded === call.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
-                  <polyline points="6 9 12 15 18 9"/>
-                </svg>
+                <ChevronDown size={14} style={{ transform: expanded === call.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
               </div>
             </div>
 
