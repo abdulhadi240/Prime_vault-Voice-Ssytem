@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase, type Appointment } from '@/lib/supabase';
 import { formatDateTime, getStatusColor } from '@/lib/utils';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
+import { List, CalendarDays, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const STATUS_FILTERS = ['All', 'booked', 'completed', 'cancelled', 'rescheduled'];
 
@@ -87,7 +88,10 @@ export default function AppointmentsPage() {
                 fontFamily: 'var(--font-body)',
               }}
             >
-              {mode === 'list' ? '☰ List' : '📅 Calendar'}
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                {mode === 'list' ? <List size={13} /> : <CalendarDays size={13} />}
+                {mode === 'list' ? 'List' : 'Calendar'}
+              </span>
             </button>
           ))}
         </div>
@@ -109,7 +113,7 @@ export default function AppointmentsPage() {
             ))}
           </div>
           <div style={{ position: 'relative', flex: 1, maxWidth: 300 }}>
-            <svg style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <Search size={13} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
             <input className="input" style={{ paddingLeft: 32 }} placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
         </div>
@@ -168,13 +172,23 @@ export default function AppointmentsPage() {
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
           {/* Calendar nav */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid var(--border)' }}>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}
-              className="btn-ghost" style={{ padding: '6px 14px' }}>← Prev</button>
+            <button
+              onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}
+              className="btn-ghost"
+              style={{ padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <ChevronLeft size={14} /> Prev
+            </button>
             <h3 className="font-display" style={{ fontSize: 16, fontWeight: 700 }}>
               {format(calMonth, 'MMMM yyyy')}
             </h3>
-            <button onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}
-              className="btn-ghost" style={{ padding: '6px 14px' }}>Next →</button>
+            <button
+              onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}
+              className="btn-ghost"
+              style={{ padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              Next <ChevronRight size={14} />
+            </button>
           </div>
 
           {/* Day headers */}
