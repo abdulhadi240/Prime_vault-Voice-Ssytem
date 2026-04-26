@@ -34,3 +34,14 @@ export function getStatusColor(status: string): string {
   if (s === 'rescheduled') return 'text-yellow-400 bg-yellow-400/10';
   return 'text-gray-400 bg-gray-400/10';
 }
+
+export function getCallStatusStyle(status: string): { background: string; color: string } {
+  const s = (status || '').toLowerCase();
+  if (s === 'ended' || s === 'completed')
+    return { background: 'rgba(74,222,128,0.12)', color: 'var(--success)' };
+  if (s === 'failed' || s === 'error' || s === 'busy' || s === 'no-answer' || s === 'cancelled')
+    return { background: 'rgba(248,113,113,0.12)', color: 'var(--danger)' };
+  if (s === 'in-progress' || s === 'initiated' || s === 'queued')
+    return { background: 'rgba(79,142,247,0.12)', color: 'var(--accent)' };
+  return { background: 'var(--surface-2)', color: 'var(--muted)' };
+}
