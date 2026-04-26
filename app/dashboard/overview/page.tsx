@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { formatDuration, formatDateTime } from '@/lib/utils';
+import { formatDuration, formatDateTime, getCallStatusStyle } from '@/lib/utils';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
@@ -131,9 +131,17 @@ export default function OverviewPage() {
           <h1 className="font-display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>Overview</h1>
           <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 3 }}>Real-time AI agent performance metrics</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div className="live-dot" />
-          <span style={{ fontSize: 12, color: 'var(--success)' }}>Live updates on</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div style={{ textAlign: 'right' }}>
+            <div className="font-display" style={{ fontSize: 36, fontWeight: 700, color: '#7c3aed', lineHeight: 1 }}>
+              {stats.minutes.toLocaleString()}
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>total minutes</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div className="live-dot" />
+            <span style={{ fontSize: 12, color: 'var(--success)' }}>Live</span>
+          </div>
         </div>
       </div>
 
@@ -285,7 +293,7 @@ export default function OverviewPage() {
                   {call.summary || '—'}
                 </div>
                 <div>
-                  <span className="badge" style={{ fontSize: 10, background: '#4f8ef720', color: '#4f8ef7' }}>
+                  <span className="badge" style={{ fontSize: 10, ...getCallStatusStyle(call.status || 'ended') }}>
                     {call.status || 'ended'}
                   </span>
                 </div>
