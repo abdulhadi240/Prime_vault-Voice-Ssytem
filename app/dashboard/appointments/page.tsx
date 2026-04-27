@@ -21,8 +21,8 @@ function StatusPill({ status }: { status: string }) {
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
       padding: '6px 10px', borderRadius: 6, width: '100%',
-      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
-      background, color,
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' as const,
+      whiteSpace: 'nowrap' as const, background, color,
     }}>
       <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
       {status || '—'}
@@ -158,7 +158,7 @@ export default function AppointmentsPage() {
       {/* ── LIST VIEW ── */}
       {viewMode === 'list' && (
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1.5fr 1fr 80px 140px', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 1.2fr 0.9fr 110px 120px', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
             {['Customer', 'Service', 'Date & Time', 'Address', 'Status', 'Actions'].map((h, i) => (
               <div key={i} style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
             ))}
@@ -171,7 +171,7 @@ export default function AppointmentsPage() {
               ref={appt.id === highlightId ? highlightRef : null}
               className="table-row"
               style={{
-                display: 'grid', gridTemplateColumns: '1.5fr 1fr 1.5fr 1fr 80px 140px',
+                display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 1.2fr 0.9fr 110px 120px',
                 gap: 12, padding: '14px 20px', alignItems: 'center',
                 background: appt.id === highlightId ? 'var(--accent-dim)' : undefined,
                 borderLeft: appt.id === highlightId ? '3px solid var(--accent)' : '3px solid transparent',

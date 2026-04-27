@@ -18,8 +18,8 @@ function StatusPill({ status, styleOverride }: { status: string; styleOverride?:
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
       padding: '6px 10px', borderRadius: 6, width: '100%',
-      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
-      background, color,
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' as const,
+      whiteSpace: 'nowrap' as const, background, color,
     }}>
       <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
       {status || '—'}
@@ -353,7 +353,7 @@ export default function OverviewPage() {
           <p style={{ color: 'var(--muted)', fontSize: 13 }}>No calls logged yet.</p>
         ) : (
           <div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 80px 1fr 80px', gap: 12, padding: '0 12px 10px', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 70px 1fr 110px', gap: 12, padding: '0 12px 10px', borderBottom: '1px solid var(--border)' }}>
               {['Call ID', 'Date', 'Duration', 'Summary', 'Status'].map(h => (
                 <div key={h} style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
               ))}
@@ -362,7 +362,7 @@ export default function OverviewPage() {
               <div
                 key={call.id}
                 className="table-row"
-                style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 80px 1fr 80px', gap: 12, padding: '12px 12px', alignItems: 'center', cursor: 'pointer' }}
+                style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr 70px 1fr 110px', gap: 12, padding: '12px 12px', alignItems: 'center', cursor: 'pointer' }}
                 onClick={() => router.push('/dashboard/call-logs')}
               >
                 <div className="font-mono" style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

@@ -10,8 +10,8 @@ function StatusPill({ status, styleOverride }: { status: string; styleOverride?:
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
       padding: '6px 10px', borderRadius: 6, width: '100%',
-      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
-      background, color,
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' as const,
+      whiteSpace: 'nowrap' as const, background, color,
     }}>
       <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
       {status || '—'}
@@ -109,7 +109,7 @@ export default function CallLogsPage() {
       {/* Table */}
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
         {/* Head */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 80px 90px 40px', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr 1fr 70px 110px 36px', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
           {['Customer', 'Call ID', 'Date', 'Duration', 'Status', ''].map((h, i) => (
             <div key={i} style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
           ))}
@@ -120,7 +120,7 @@ export default function CallLogsPage() {
         ) : filtered.map(call => (
           <div key={call.id}>
             {/* Row */}
-            <div className="table-row" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 80px 90px 40px', gap: 12, padding: '14px 20px', alignItems: 'center', cursor: 'pointer' }}
+            <div className="table-row" style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr 1fr 70px 110px 36px', gap: 12, padding: '14px 20px', alignItems: 'center', cursor: 'pointer' }}
               onClick={() => setExpanded(expanded === call.id ? null : call.id)}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 500 }}>{(call as any).customers?.name || 'Unknown'}</div>
