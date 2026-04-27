@@ -5,8 +5,8 @@
 /* ── DARK MODE (default) ── */
 :root, [data-theme="dark"] {
   --bg: #0a0b0f;
-  --surface: #111318;
-  --surface-2: #181c24;
+  --surface: #13151d;
+  --surface-2: #1a1e2a;
   --border: #1e2330;
   --accent: #4f8ef7;
   --accent-dim: #4f8ef720;
@@ -15,7 +15,7 @@
   --danger: #f87171;
   --success: #4ade80;
   --warning: #fbbf24;
-  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+  --shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.03);
   --font-display: var(--inter, 'Inter', sans-serif);
   --font-body: var(--inter, 'Inter', sans-serif);
   --font-mono: var(--dm-mono, 'DM Mono', monospace);
@@ -23,10 +23,10 @@
 
 /* ── LIGHT MODE ── */
 [data-theme="light"] {
-  --bg: #f4f6fb;
+  --bg: #f0f2f8;
   --surface: #ffffff;
-  --surface-2: #f0f2f7;
-  --border: #e2e6ef;
+  --surface-2: #e8ecf4;
+  --border: #dde2ee;
   --accent: #3b7ef0;
   --accent-dim: #3b7ef015;
   --text: #0f1117;
@@ -34,7 +34,7 @@
   --danger: #ef4444;
   --success: #16a34a;
   --warning: #d97706;
-  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.07);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -69,6 +69,7 @@ body {
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
+  border-top: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
   border-radius: 12px;
   padding: 20px 24px;
   transition: border-color 0.2s, transform 0.2s, background 0.25s;
