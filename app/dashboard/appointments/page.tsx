@@ -19,12 +19,11 @@ function StatusPill({ status }: { status: string }) {
   const { background, color } = getStatusStyle(status);
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '4px 8px', borderRadius: 6, width: '100%',
       fontSize: 9, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' as const,
-      whiteSpace: 'nowrap' as const, background, color,
+      whiteSpace: 'nowrap' as const, color,
     }}>
-      <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
       {status || '—'}
     </div>
   );
