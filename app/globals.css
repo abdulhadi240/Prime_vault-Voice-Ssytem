@@ -72,10 +72,19 @@ body {
   border-top: 2px solid color-mix(in srgb, var(--accent) 30%, transparent);
   border-radius: 12px;
   padding: 20px 24px;
-  transition: border-color 0.2s, transform 0.2s, background 0.25s;
+  transition: border-color 0.25s, transform 0.25s, background 0.25s, box-shadow 0.25s;
   box-shadow: var(--shadow);
 }
-.stat-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.stat-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(79,142,247,0.13), var(--shadow);
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(20px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
 
 .btn-primary {
   background: var(--accent);

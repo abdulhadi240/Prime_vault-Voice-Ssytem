@@ -7,13 +7,18 @@ import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
 import { format, subDays } from 'date-fns';
-import { Phone, Clock, BarChart2, CalendarCheck, XCircle, Users } from 'lucide-react';
+import { Phone, Clock, BarChart2, CalendarCheck, XCircle, Users, DollarSign } from 'lucide-react';
 
 const COLORS = ['#4f8ef7', '#7c3aed', '#f59e0b', '#10b981', '#ef4444', '#06b6d4'];
 
+type AnimatedStats = { calls: number; minutes: number; avgDuration: number; booked: number; cancelled: number; customers: number; cost: number };
+
+function easeOutCubic(t: number) { return 1 - Math.pow(1 - t, 3); }
+
 export default function OverviewPage() {
   const [user, setUser] = useState<any>(null);
-  const [stats, setStats] = useState({ calls: 0, minutes: 0, avgDuration: 0, booked: 0, cancelled: 0, customers: 0 });
+  const [stats, setStats] = useState<AnimatedStats>({ calls: 0, minutes: 0, avgDuration: 0, booked: 0, cancelled: 0, customers: 0, cost: 0 });
+  const [animated, setAnimated] = useState<AnimatedStats>({ calls: 0, minutes: 0, avgDuration: 0, booked: 0, cancelled: 0, customers: 0, cost: 0 });
   const [callsPerDay, setCallsPerDay] = useState<any[]>([]);
   const [serviceBreakdown, setServiceBreakdown] = useState<any[]>([]);
   const [outcomeData, setOutcomeData] = useState<any[]>([]);
@@ -38,6 +43,7 @@ export default function OverviewPage() {
       const customers = customersRes.data || [];
 
       const totalDuration = calls.reduce((sum: number, c: any) => sum + (c.duration || 0), 0);
+      const totalCostCents = Math.round(calls.reduce((sum: number, c: any) => sum + (c.cost || 0), 0) * 100);
       setStats({
         calls: calls.length,
         minutes: Math.round(totalDuration / 60),
@@ -45,6 +51,7 @@ export default function OverviewPage() {
         booked: appts.filter((a: any) => a.status === 'booked' || a.status === 'scheduled').length,
         cancelled: appts.filter((a: any) => a.status?.toLowerCase() === 'cancelled').length,
         customers: customers.length,
+        cost: totalCostCents,
       });
 
       // Calls per day — last 7 days
@@ -105,13 +112,36 @@ export default function OverviewPage() {
     return () => { supabase.removeChannel(channel); };
   }, []);
 
+  // Count-up animation when data loads
+  useEffect(() => {
+    if (loading) return;
+    const DURATION = 1400;
+    const targets = stats;
+    const startTime = performance.now();
+    function tick(now: number) {
+      const t = easeOutCubic(Math.min((now - startTime) / DURATION, 1));
+      setAnimated({
+        calls:       Math.round(targets.calls * t),
+        minutes:     Math.round(targets.minutes * t),
+        avgDuration: Math.round(targets.avgDuration * t),
+        booked:      Math.round(targets.booked * t),
+        cancelled:   Math.round(targets.cancelled * t),
+        customers:   Math.round(targets.customers * t),
+        cost:        Math.round(targets.cost * t),
+      });
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }, [loading, stats.calls, stats.minutes, stats.booked, stats.cancelled, stats.customers, stats.cost]);
+
   const STAT_CARDS = [
-    { label: 'Total Calls',   value: stats.calls,                    icon: <Phone size={20} /> },
-    { label: 'Total Minutes', value: stats.minutes,                   icon: <Clock size={20} /> },
-    { label: 'Avg Duration',  value: formatDuration(stats.avgDuration), icon: <BarChart2 size={20} /> },
-    { label: 'Bookings',      value: stats.booked,                   icon: <CalendarCheck size={20} /> },
-    { label: 'Cancelled',     value: stats.cancelled,                icon: <XCircle size={20} /> },
-    { label: 'Customers',     value: stats.customers,                icon: <Users size={20} /> },
+    { label: 'Total Calls',   value: animated.calls,                       icon: <Phone size={20} /> },
+    { label: 'Total Minutes', value: animated.minutes,                      icon: <Clock size={20} /> },
+    { label: 'Avg Duration',  value: formatDuration(animated.avgDuration),  icon: <BarChart2 size={20} /> },
+    { label: 'Bookings',      value: animated.booked,                       icon: <CalendarCheck size={20} /> },
+    { label: 'Cancelled',     value: animated.cancelled,                    icon: <XCircle size={20} /> },
+    { label: 'Customers',     value: animated.customers,                    icon: <Users size={20} /> },
+    { label: 'Total Cost',    value: `$${(animated.cost / 100).toFixed(2)}`, icon: <DollarSign size={20} /> },
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -169,9 +199,16 @@ export default function OverviewPage() {
       </div>
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
         {STAT_CARDS.map((s, i) => (
-          <div key={i} className="stat-card">
+          <div
+            key={i}
+            className="stat-card"
+            style={{
+              animation: 'cardEntrance 0.5s ease both',
+              animationDelay: `${i * 70}ms`,
+            }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <span style={{ color: 'var(--accent)', display: 'flex', opacity: 0.85 }}>{s.icon}</span>
             </div>
@@ -200,7 +237,7 @@ export default function OverviewPage() {
               <XAxis dataKey="label" tick={{ fill: 'var(--muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: 'var(--muted)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="count" name="calls" stroke="#4f8ef7" strokeWidth={2} fill="url(#callGrad)" dot={{ fill: '#4f8ef7', r: 3 }} />
+              <Area type="monotone" dataKey="count" name="calls" stroke="#4f8ef7" strokeWidth={2} fill="url(#callGrad)" dot={{ fill: '#4f8ef7', r: 3 }} animationBegin={300} animationDuration={1200} animationEasing="ease-out" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -212,7 +249,7 @@ export default function OverviewPage() {
             <>
               <ResponsiveContainer width="100%" height={130}>
                 <PieChart>
-                  <Pie data={serviceBreakdown} cx="50%" cy="50%" innerRadius={36} outerRadius={58} paddingAngle={3} dataKey="value">
+                  <Pie data={serviceBreakdown} cx="50%" cy="50%" innerRadius={36} outerRadius={58} paddingAngle={3} dataKey="value" animationBegin={200} animationDuration={1000} animationEasing="ease-out">
                     {serviceBreakdown.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
@@ -245,7 +282,7 @@ export default function OverviewPage() {
             <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
               <ResponsiveContainer width={140} height={140}>
                 <PieChart>
-                  <Pie data={outcomeData} cx="50%" cy="50%" outerRadius={60} dataKey="value" paddingAngle={2}>
+                  <Pie data={outcomeData} cx="50%" cy="50%" outerRadius={60} dataKey="value" paddingAngle={2} animationBegin={100} animationDuration={1100} animationEasing="ease-out">
                     {outcomeData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
@@ -282,7 +319,7 @@ export default function OverviewPage() {
               />
               <YAxis tick={{ fill: 'var(--muted)', fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" name="calls" radius={[3, 3, 0, 0]}>
+              <Bar dataKey="count" name="calls" radius={[3, 3, 0, 0]} animationBegin={400} animationDuration={1000} animationEasing="ease-out">
                 {peakHours.map((entry, i) => (
                   <Cell key={i} fill={entry.count > 0 ? '#4f8ef7' : 'var(--border)'} />
                 ))}
