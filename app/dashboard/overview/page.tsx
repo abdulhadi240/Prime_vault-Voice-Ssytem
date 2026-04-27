@@ -12,6 +12,7 @@ import { Phone, Clock, BarChart2, CalendarCheck, XCircle, Users } from 'lucide-r
 const COLORS = ['#4f8ef7', '#7c3aed', '#f59e0b', '#10b981', '#ef4444', '#06b6d4'];
 
 export default function OverviewPage() {
+  const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState({ calls: 0, minutes: 0, avgDuration: 0, booked: 0, cancelled: 0, customers: 0 });
   const [callsPerDay, setCallsPerDay] = useState<any[]>([]);
   const [serviceBreakdown, setServiceBreakdown] = useState<any[]>([]);
@@ -19,6 +20,10 @@ export default function OverviewPage() {
   const [peakHours, setPeakHours] = useState<any[]>([]);
   const [recentCalls, setRecentCalls] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -101,12 +106,12 @@ export default function OverviewPage() {
   }, []);
 
   const STAT_CARDS = [
-    { label: 'Total Calls', value: stats.calls, icon: <Phone size={20} />, color: '#4f8ef7' },
-    { label: 'Total Minutes', value: stats.minutes, icon: <Clock size={20} />, color: '#7c3aed' },
-    { label: 'Avg Duration', value: formatDuration(stats.avgDuration), icon: <BarChart2 size={20} />, color: '#10b981' },
-    { label: 'Bookings', value: stats.booked, icon: <CalendarCheck size={20} />, color: '#f59e0b' },
-    { label: 'Cancelled', value: stats.cancelled, icon: <XCircle size={20} />, color: '#ef4444' },
-    { label: 'Customers', value: stats.customers, icon: <Users size={20} />, color: '#06b6d4' },
+    { label: 'Total Calls',   value: stats.calls,                    icon: <Phone size={20} /> },
+    { label: 'Total Minutes', value: stats.minutes,                   icon: <Clock size={20} /> },
+    { label: 'Avg Duration',  value: formatDuration(stats.avgDuration), icon: <BarChart2 size={20} /> },
+    { label: 'Bookings',      value: stats.booked,                   icon: <CalendarCheck size={20} /> },
+    { label: 'Cancelled',     value: stats.cancelled,                icon: <XCircle size={20} /> },
+    { label: 'Customers',     value: stats.customers,                icon: <Users size={20} /> },
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -131,16 +136,34 @@ export default function OverviewPage() {
           <h1 className="font-display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>Overview</h1>
           <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 3 }}>Real-time AI agent performance metrics</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <div style={{ background: 'var(--accent-dim)', border: '1px solid rgba(79,142,247,0.30)', borderRadius: 16, padding: '12px 20px', textAlign: 'center' }}>
-            <div className="font-display" style={{ fontSize: 36, fontWeight: 700, color: '#7c3aed', lineHeight: 1 }}>
-              {stats.minutes.toLocaleString()}
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4 }}>total minutes</div>
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {/* Live indicator */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div className="live-dot" />
-            <span style={{ fontSize: 12, color: 'var(--success)' }}>Live</span>
+            <span style={{ fontSize: 12, color: 'var(--success)', fontWeight: 500 }}>Live</span>
+          </div>
+
+          <div style={{ width: 1, height: 32, background: 'var(--border)' }} />
+
+          {/* Total minutes */}
+          <div style={{ textAlign: 'right' }}>
+            <div className="font-display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--accent)', lineHeight: 1 }}>
+              {stats.minutes.toLocaleString()}
+            </div>
+            <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2, letterSpacing: '0.04em', textTransform: 'uppercase' }}>total min</div>
+          </div>
+
+          <div style={{ width: 1, height: 32, background: 'var(--border)' }} />
+
+          {/* User avatar */}
+          <div style={{
+            width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg, #4f8ef7, #7c3aed)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 14, fontWeight: 700, color: '#fff',
+            boxShadow: '0 2px 8px rgba(79,142,247,0.30)',
+          }}>
+            {user?.email?.charAt(0).toUpperCase() || '?'}
           </div>
         </div>
       </div>
@@ -149,11 +172,10 @@ export default function OverviewPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
         {STAT_CARDS.map((s, i) => (
           <div key={i} className="stat-card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <span style={{ color: s.color, display: 'flex' }}>{s.icon}</span>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: s.color }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <span style={{ color: 'var(--accent)', display: 'flex', opacity: 0.85 }}>{s.icon}</span>
             </div>
-            <div className="font-display" style={{ fontSize: 28, fontWeight: 700, color: s.color, lineHeight: 1 }}>
+            <div className="font-display" style={{ fontSize: 28, fontWeight: 700, color: 'var(--text)', lineHeight: 1 }}>
               {s.value}
             </div>
             <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6, fontWeight: 500 }}>{s.label}</div>
