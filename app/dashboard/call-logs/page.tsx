@@ -9,8 +9,8 @@ function StatusPill({ status, styleOverride }: { status: string; styleOverride?:
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
-      padding: '6px 10px', borderRadius: 6, width: '100%',
-      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' as const,
+      padding: '4px 8px', borderRadius: 6, width: '100%',
+      fontSize: 9, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' as const,
       whiteSpace: 'nowrap' as const, background, color,
     }}>
       <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
