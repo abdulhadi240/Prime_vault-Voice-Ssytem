@@ -24,6 +24,8 @@ export default function AppointmentsPage() {
   const [calMonth, setCalMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [hoveredAppt, setHoveredAppt] = useState<Appointment | null>(null);
+  const [hoverPos, setHoverPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   async function load() {
     const { data } = await supabase
@@ -232,13 +234,16 @@ export default function AppointmentsPage() {
                   }}>{format(day, 'd')}</div>
 
                   {dayAppts.slice(0, 3).map(a => (
-                    <div key={a.id} style={{
-                      fontSize: 10, padding: '2px 6px', borderRadius: 4, marginBottom: 3,
-                      background: (STATUS_DOT[a.status?.toLowerCase() || ''] || '#6b7280') + '25',
-                      color: STATUS_DOT[a.status?.toLowerCase() || ''] || '#6b7280',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                      cursor: 'default',
-                    }} title={`${(a as any).customers?.name} — ${a.service_type}`}>
+                    <div key={a.id}
+                      onMouseEnter={e => { setHoveredAppt(a); setHoverPos({ x: e.clientX, y: e.clientY }); }}
+                      onMouseLeave={() => setHoveredAppt(null)}
+                      style={{
+                        fontSize: 10, padding: '2px 6px', borderRadius: 4, marginBottom: 3,
+                        background: (STATUS_DOT[a.status?.toLowerCase() || ''] || '#6b7280') + '25',
+                        color: STATUS_DOT[a.status?.toLowerCase() || ''] || '#6b7280',
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        cursor: 'default',
+                      }}>
                       {(a as any).customers?.name?.split(' ')[0] || 'Appt'} · {a.service_type}
                     </div>
                   ))}
@@ -331,6 +336,44 @@ export default function AppointmentsPage() {
                 ))}
             </div>
           ))}
+        </div>
+      )}
+      {hoveredAppt && (
+        <div style={{
+          position: 'fixed',
+          top: hoverPos.y,
+          left: hoverPos.x + 16,
+          width: 220,
+          zIndex: 200,
+          pointerEvents: 'none',
+          background: 'var(--surface)',
+          border: '1px solid var(--border)',
+          borderRadius: 10,
+          padding: '14px 16px',
+          boxShadow: 'var(--shadow)',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>
+              {(hoveredAppt as any).customers?.name || 'Unknown'}
+            </span>
+            <span className={`badge ${getStatusColor(hoveredAppt.status)}`} style={{ fontSize: 10 }}>
+              {hoveredAppt.status || 'booked'}
+            </span>
+          </div>
+          <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 3 }}>{hoveredAppt.service_type}</div>
+          <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: hoveredAppt.address ? 3 : 0 }}>
+            {formatDateTime(hoveredAppt.scheduled_start)}
+          </div>
+          {hoveredAppt.address && (
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: hoveredAppt.issue_description ? 3 : 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {hoveredAppt.address}
+            </div>
+          )}
+          {hoveredAppt.issue_description && (
+            <div style={{ fontSize: 12, color: 'var(--muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+              {hoveredAppt.issue_description}
+            </div>
+          )}
         </div>
       )}
     </div>
