@@ -108,7 +108,7 @@ export default function CallLogsPage() {
       {/* Table */}
       <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
         {/* Head */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr 1fr 70px 110px 36px', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.85fr 0.85fr 70px 110px 36px', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
           {['Customer', 'Call ID', 'Date', 'Duration', 'Status', ''].map((h, i) => (
             <div key={i} style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
           ))}
@@ -119,7 +119,7 @@ export default function CallLogsPage() {
         ) : filtered.map(call => (
           <div key={call.id}>
             {/* Row */}
-            <div className="table-row" style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr 1fr 70px 110px 36px', gap: 12, padding: '14px 20px', alignItems: 'center', cursor: 'pointer' }}
+            <div className="table-row" style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.85fr 0.85fr 70px 110px 36px', gap: 12, padding: '14px 20px', alignItems: 'center', cursor: 'pointer' }}
               onClick={() => setExpanded(expanded === call.id ? null : call.id)}>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 500 }}>{(call as any).customers?.name || 'Unknown'}</div>
