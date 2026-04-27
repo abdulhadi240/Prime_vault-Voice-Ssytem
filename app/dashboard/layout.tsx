@@ -4,7 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/lib/theme';
-import { LayoutGrid, Phone, CalendarDays, Users, Settings, Sun, Moon, Menu, X, LogOut } from 'lucide-react';
+import { LayoutGrid, Phone, CalendarDays, Users, Settings, Sun, Moon, Menu, X, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const NAV = [
   { href: '/dashboard/overview',     label: 'Overview',      icon: <LayoutGrid size={16} /> },
@@ -21,6 +21,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -89,49 +90,61 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* ── SIDEBAR ── */}
       <aside className={`dash-sidebar${sidebarOpen ? ' open' : ''}`} style={{
-        width: 224, flexShrink: 0, background: 'var(--surface)',
+        width: sidebarCollapsed ? 64 : 224, flexShrink: 0, background: 'var(--surface)',
         borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column',
         position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 150,
-        transition: 'transform 0.25s ease, background 0.25s', boxShadow: 'var(--shadow)',
+        transition: 'transform 0.25s ease, width 0.25s ease, background 0.25s', boxShadow: 'var(--shadow)',
         overflowY: 'auto',
       }}>
         {/* Logo */}
-        <div style={{ padding: '18px 16px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ padding: '18px 16px 14px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', overflow: 'hidden' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, background: 'linear-gradient(135deg,#4f8ef7,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M3 9.5L12 3L21 9.5V20C21 20.55 20.55 21 20 21H15V15H9V21H4C3.45 21 3 20.55 3 20V9.5Z"/></svg>
             </div>
-            <div>
+            <div style={{ overflow: 'hidden', maxWidth: sidebarCollapsed ? 0 : 140, opacity: sidebarCollapsed ? 0 : 1, transition: 'max-width 0.25s ease, opacity 0.2s ease', whiteSpace: 'nowrap' }}>
               <div className="font-display" style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', lineHeight: 1.2 }}>Home Services</div>
               <div style={{ fontSize: 10, color: 'var(--muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Command Center</div>
             </div>
           </div>
-          {themeBtn}
+          <button
+            onClick={() => setSidebarCollapsed(c => !c)}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 8, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--muted)', transition: 'all 0.2s', flexShrink: 0 }}
+          >
+            {sidebarCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
         </div>
 
         {/* Live badge */}
-        <div style={{ padding: '10px 18px', borderBottom: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-            <div className="live-dot" />
-            <span style={{ fontSize: 11, color: 'var(--success)', fontWeight: 500 }}>Live · AI Agent Active</span>
+        {!sidebarCollapsed && (
+          <div style={{ padding: '10px 18px', borderBottom: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div className="live-dot" />
+              <span style={{ fontSize: 11, color: 'var(--success)', fontWeight: 500 }}>Live · AI Agent Active</span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Nav */}
         <nav style={{ padding: '10px', flex: 1 }}>
           {NAV.map(item => {
             const active = pathname === item.href;
             return (
-              <Link key={item.href} href={item.href} style={{
+              <Link key={item.href} href={item.href} title={item.label} style={{
                 display: 'flex', alignItems: 'center', gap: 10,
                 padding: '9px 12px', borderRadius: 8, marginBottom: 2,
+                justifyContent: sidebarCollapsed ? 'center' : 'flex-start',
                 color: active ? 'var(--accent)' : 'var(--muted)',
                 background: active ? 'var(--accent-dim)' : 'transparent',
                 fontSize: 13, fontWeight: active ? 600 : 400,
                 textDecoration: 'none', transition: 'all 0.15s',
                 borderLeft: active ? '2px solid var(--accent)' : '2px solid transparent',
               }}>
-                {item.icon}{item.label}
+                {item.icon}
+                <span style={{ overflow: 'hidden', maxWidth: sidebarCollapsed ? 0 : 120, opacity: sidebarCollapsed ? 0 : 1, transition: 'max-width 0.25s ease, opacity 0.2s ease', whiteSpace: 'nowrap' }}>
+                  {item.label}
+                </span>
               </Link>
             );
           })}
@@ -139,23 +152,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {/* User */}
         <div style={{ padding: '14px 16px', borderTop: '1px solid var(--border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, justifyContent: sidebarCollapsed ? 'center' : 'flex-start' }}>
             <div style={{ width: 30, height: 30, borderRadius: '50%', flexShrink: 0, background: 'linear-gradient(135deg,#4f8ef7,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#fff' }}>
               {user?.email?.charAt(0).toUpperCase()}
             </div>
-            <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+            <div style={{ overflow: 'hidden', maxWidth: sidebarCollapsed ? 0 : 140, opacity: sidebarCollapsed ? 0 : 1, transition: 'max-width 0.25s ease, opacity 0.2s ease', whiteSpace: 'nowrap', fontSize: 11, color: 'var(--muted)', textOverflow: 'ellipsis', flex: 1 }}>
               {user?.email}
             </div>
           </div>
+          <div style={{ marginBottom: 8, display: 'flex', justifyContent: sidebarCollapsed ? 'center' : 'flex-start' }}>
+            <button onClick={toggle} title={theme === 'dark' ? 'Light mode' : 'Dark mode'} style={{
+              background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 8,
+              width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', color: 'var(--muted)', transition: 'all 0.2s', flexShrink: 0,
+            }}>
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
+          </div>
           <button onClick={handleSignOut} className="btn-ghost" style={{ width: '100%', fontSize: 12, padding: '7px 12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <LogOut size={13} />
-            Sign out
+            <span style={{ overflow: 'hidden', maxWidth: sidebarCollapsed ? 0 : 60, opacity: sidebarCollapsed ? 0 : 1, transition: 'max-width 0.25s ease, opacity 0.2s ease', whiteSpace: 'nowrap' }}>
+              Sign out
+            </span>
           </button>
         </div>
       </aside>
 
       {/* ── MAIN ── */}
-      <main className="dash-main" style={{ flex: 1, marginLeft: 224, minHeight: '100vh', overflow: 'auto', transition: 'background 0.25s' }}>
+      <main className="dash-main" style={{ flex: 1, marginLeft: sidebarCollapsed ? 64 : 224, minHeight: '100vh', overflow: 'auto', transition: 'background 0.25s, margin-left 0.25s ease' }}>
         {children}
       </main>
 
@@ -163,7 +187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         @media (max-width: 768px) {
           .mobile-bar   { display: flex !important; }
           .mobile-overlay { display: block !important; }
-          .dash-sidebar { transform: translateX(-100%); top: 56px !important; }
+          .dash-sidebar { transform: translateX(-100%); top: 56px !important; width: 224px !important; }
           .dash-sidebar.open { transform: translateX(0); }
           .dash-main    { margin-left: 0 !important; padding-top: 56px; }
         }
