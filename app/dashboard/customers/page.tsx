@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase, type Customer, type Appointment, type CallLog } from '@/lib/supabase';
+import { supabase, type Customer, type Appointment, type CallLog, type TwilioMessage } from '@/lib/supabase';
 import { formatDate, formatDateTime, formatDuration, getStatusColor } from '@/lib/utils';
 import { Search, Users, Phone, MapPin } from 'lucide-react';
 
@@ -11,7 +11,7 @@ export default function CustomersPage() {
   const [filtered, setFiltered] = useState<Customer[]>([]);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Customer | null>(null);
-  const [profile, setProfile] = useState<{ appointments: Appointment[], calls: CallLog[] } | null>(null);
+  const [profile, setProfile] = useState<{ appointments: Appointment[], calls: CallLog[], sms: TwilioMessage[] } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -40,7 +40,11 @@ export default function CustomersPage() {
       supabase.from('appointments').select('*').eq('customer_id', customer.id).order('scheduled_start', { ascending: false }),
       supabase.from('call_logs').select('*').eq('customer_id', customer.id).order('created_at', { ascending: false }),
     ]);
-    setProfile({ appointments: apptRes.data || [], calls: callRes.data || [] });
+    const apptIds = (apptRes.data || []).map(a => a.id);
+    const smsRes = apptIds.length > 0
+      ? await supabase.from('twilio_messages').select('*').in('appointment_id', apptIds).order('created_at', { ascending: true })
+      : { data: [] };
+    setProfile({ appointments: apptRes.data || [], calls: callRes.data || [], sms: smsRes.data || [] });
   }
 
   if (loading) return <div style={{ padding: 32, color: 'var(--muted)' }}>Loading...</div>;
@@ -183,7 +187,7 @@ export default function CustomersPage() {
                 </div>
 
                 {/* Call history */}
-                <div>
+                <div style={{ marginBottom: 24 }}>
                   <h3 className="font-display" style={{ fontSize: 15, fontWeight: 600, marginBottom: 14 }}>Call History</h3>
                   {profile.calls.length === 0 ? (
                     <p style={{ color: 'var(--muted)', fontSize: 13 }}>No calls logged</p>
@@ -201,6 +205,70 @@ export default function CustomersPage() {
                           {c.summary && <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>{c.summary}</div>}
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* SMS history */}
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                    <h3 className="font-display" style={{ fontSize: 15, fontWeight: 600 }}>SMS Messages</h3>
+                    {profile.sms.length > 0 && (
+                      <span style={{
+                        fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999,
+                        background: 'var(--accent-dim)', color: 'var(--accent)',
+                      }}>
+                        {profile.sms.length}
+                      </span>
+                    )}
+                  </div>
+                  {profile.sms.length === 0 ? (
+                    <p style={{ color: 'var(--muted)', fontSize: 13 }}>No messages sent</p>
+                  ) : (
+                    <div style={{
+                      background: 'var(--surface)', border: '1px solid var(--border)',
+                      borderRadius: 12, padding: '16px 18px',
+                      display: 'flex', flexDirection: 'column', gap: 14,
+                    }}>
+                      {profile.sms.map(msg => {
+                        const smsStatus = msg.status?.toLowerCase();
+                        const statusStyle: { bg: string; color: string } =
+                          smsStatus === 'delivered'
+                            ? { bg: 'rgba(74,222,128,0.15)', color: 'var(--success)' }
+                            : smsStatus === 'failed' || smsStatus === 'undelivered'
+                            ? { bg: 'rgba(248,113,113,0.15)', color: 'var(--danger)' }
+                            : { bg: 'var(--accent-dim)', color: 'var(--accent)' };
+                        return (
+                          <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                            {/* Bubble */}
+                            <div style={{
+                              maxWidth: '82%',
+                              background: 'var(--accent)',
+                              color: '#fff',
+                              borderRadius: '14px 14px 4px 14px',
+                              padding: '10px 14px',
+                              fontSize: 13,
+                              lineHeight: 1.55,
+                              boxShadow: '0 2px 8px rgba(79,142,247,0.25)',
+                            }}>
+                              {msg.message_body}
+                            </div>
+                            {/* Meta row */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5 }}>
+                              <span style={{ fontSize: 10, color: 'var(--muted)' }}>
+                                {formatDateTime(msg.created_at)}
+                              </span>
+                              <span style={{
+                                fontSize: 9, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase',
+                                padding: '2px 7px', borderRadius: 999,
+                                background: statusStyle.bg, color: statusStyle.color,
+                              }}>
+                                {msg.status || 'sent'}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
