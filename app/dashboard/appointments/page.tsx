@@ -269,73 +269,129 @@ export default function AppointmentsPage() {
 
       {/* ── KANBAN VIEW ── */}
       {viewMode === 'kanban' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-          {KANBAN_COLUMNS.map(col => (
-            <div
-              key={col.status}
-              onDragOver={e => { e.preventDefault(); setDragOverColumn(col.status); }}
-              onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverColumn(null); }}
-              onDrop={async e => {
-                e.preventDefault();
-                setDragOverColumn(null);
-                const id = e.dataTransfer.getData('text/plain');
-                if (id) { try { await updateStatus(id, col.status); } catch { /* ignore */ } }
-              }}
-              style={{
-                background: 'var(--surface)',
-                border: `1px solid ${dragOverColumn === col.status ? col.color : 'var(--border)'}`,
-                borderRadius: 12,
-                padding: 12,
-                minHeight: 200,
-                transition: 'border-color 0.15s',
-              }}
-            >
-              {/* Column header */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid var(--border)' }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: col.color, flexShrink: 0 }} />
-                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{col.label}</span>
-                <span style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 'auto' }}>
-                  {appointments.filter(a => (a.status?.toLowerCase() || 'booked') === col.status).length}
-                </span>
-              </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, alignItems: 'start' }}>
+          {KANBAN_COLUMNS.map(col => {
+            const colCards = appointments.filter(a => (a.status?.toLowerCase() || 'booked') === col.status);
+            const isDragOver = dragOverColumn === col.status;
+            return (
+              <div
+                key={col.status}
+                onDragOver={e => { e.preventDefault(); setDragOverColumn(col.status); }}
+                onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverColumn(null); }}
+                onDrop={async e => {
+                  e.preventDefault();
+                  setDragOverColumn(null);
+                  const id = e.dataTransfer.getData('text/plain');
+                  if (id) { try { await updateStatus(id, col.status); } catch { /* ignore */ } }
+                }}
+                style={{
+                  background: isDragOver ? col.color + '12' : 'var(--surface-2)',
+                  border: `1px solid ${isDragOver ? col.color + '60' : 'var(--border)'}`,
+                  borderTop: `3px solid ${col.color}`,
+                  borderRadius: 12,
+                  padding: '14px 12px 12px',
+                  minHeight: 240,
+                  transition: 'background 0.15s, border-color 0.15s',
+                }}
+              >
+                {/* Column header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)', letterSpacing: '0.01em', flex: 1 }}>{col.label}</span>
+                  <span style={{
+                    fontSize: 11, fontWeight: 600, minWidth: 22, height: 22,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: col.color + '20', color: col.color,
+                    borderRadius: 6, padding: '0 6px',
+                  }}>
+                    {colCards.length}
+                  </span>
+                </div>
 
-              {/* Cards */}
-              {appointments
-                .filter(a => (a.status?.toLowerCase() || 'booked') === col.status)
-                .map(appt => (
-                  <div
-                    key={appt.id}
-                    draggable
-                    onDragStart={e => {
-                      e.dataTransfer.setData('text/plain', appt.id);
-                      e.dataTransfer.effectAllowed = 'move';
-                    }}
-                    style={{
-                      background: 'var(--surface-2)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 8,
-                      padding: '10px 12px',
-                      marginBottom: 8,
-                      cursor: 'grab',
-                      userSelect: 'none',
-                    }}
-                  >
-                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
-                      {(appt as any).customers?.name || 'Unknown'}
-                    </div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>{appt.service_type}</div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: appt.address ? 3 : 0 }}>
-                      {formatDateTime(appt.scheduled_start)}
-                    </div>
-                    {appt.address && (
-                      <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {appt.address}
+                {/* Cards */}
+                {colCards.map(appt => {
+                  const name: string = (appt as any).customers?.name || 'Unknown';
+                  const initials = name.split(' ').map((n: string) => n[0]).slice(0, 2).join('').toUpperCase();
+                  return (
+                    <div
+                      key={appt.id}
+                      draggable
+                      onDragStart={e => {
+                        e.dataTransfer.setData('text/plain', appt.id);
+                        e.dataTransfer.effectAllowed = 'move';
+                      }}
+                      style={{
+                        background: 'var(--surface)',
+                        border: '1px solid var(--border)',
+                        borderLeft: `3px solid ${col.color}`,
+                        borderRadius: 10,
+                        padding: '12px 14px',
+                        marginBottom: 8,
+                        cursor: 'grab',
+                        userSelect: 'none',
+                        boxShadow: 'var(--shadow)',
+                        transition: 'transform 0.15s, box-shadow 0.15s',
+                      }}
+                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)'; }}
+                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow)'; }}
+                    >
+                      {/* Avatar + name row */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <div style={{
+                          width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+                          background: col.color + '25', color: col.color,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 11, fontWeight: 700, letterSpacing: '0.02em',
+                        }}>
+                          {initials}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {name}
+                          </div>
+                          <div style={{ fontSize: 10, color: 'var(--muted)' }}>
+                            {(appt as any).customers?.phone || ''}
+                          </div>
+                        </div>
                       </div>
-                    )}
+
+                      {/* Service pill */}
+                      <div style={{ marginBottom: 8 }}>
+                        <span style={{
+                          display: 'inline-block', fontSize: 10, fontWeight: 600,
+                          background: col.color + '18', color: col.color,
+                          padding: '2px 8px', borderRadius: 999,
+                        }}>
+                          {appt.service_type}
+                        </span>
+                      </div>
+
+                      {/* Date */}
+                      <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: appt.address ? 3 : 0 }}>
+                        {formatDateTime(appt.scheduled_start)}
+                      </div>
+
+                      {/* Address */}
+                      {appt.address && (
+                        <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>
+                          {appt.address}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {colCards.length === 0 && (
+                  <div style={{
+                    border: `2px dashed ${col.color}30`,
+                    borderRadius: 10, padding: '24px 12px',
+                    textAlign: 'center', fontSize: 12, color: 'var(--muted)',
+                  }}>
+                    No {col.label.toLowerCase()} appointments
                   </div>
-                ))}
-            </div>
-          ))}
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
       {hoveredAppt && (
