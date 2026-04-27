@@ -90,7 +90,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* ── SIDEBAR ── */}
       <aside className={`dash-sidebar${sidebarOpen ? ' open' : ''}`} style={{
-        width: sidebarCollapsed ? 64 : 224, flexShrink: 0, background: 'var(--surface)',
+        width: sidebarCollapsed ? 64 : 224, flexShrink: 0, background: 'linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%)',
         borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column',
         position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 150,
         transition: 'transform 0.25s ease, width 0.25s ease, background 0.25s', boxShadow: 'var(--shadow)',

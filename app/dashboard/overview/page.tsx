@@ -132,7 +132,7 @@ export default function OverviewPage() {
           <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 3 }}>Real-time AI agent performance metrics</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <div style={{ textAlign: 'right' }}>
+          <div style={{ background: 'var(--accent-dim)', border: '1px solid rgba(79,142,247,0.30)', borderRadius: 16, padding: '12px 20px', textAlign: 'center' }}>
             <div className="font-display" style={{ fontSize: 36, fontWeight: 700, color: '#7c3aed', lineHeight: 1 }}>
               {stats.minutes.toLocaleString()}
             </div>
