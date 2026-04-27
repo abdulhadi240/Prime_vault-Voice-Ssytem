@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, type Customer, type Appointment, type CallLog, type TwilioMessage } from '@/lib/supabase';
-import { formatDate, formatDateTime, formatDuration, getStatusColor } from '@/lib/utils';
+import { formatDate, formatDateTime, formatDuration, getStatusColor, getStatusStyle } from '@/lib/utils';
 import { Search, Users, Phone, MapPin } from 'lucide-react';
 
 export default function CustomersPage() {
@@ -178,7 +178,7 @@ export default function CustomersPage() {
                           </div>
                           <div style={{ textAlign: 'right' }}>
                             <div style={{ fontSize: 12, color: 'var(--text)' }}>{formatDateTime(a.scheduled_start)}</div>
-                            <span className={`badge ${getStatusColor(a.status)}`} style={{ marginTop: 4 }}>{a.status}</span>
+                            <span className="badge" style={{ marginTop: 4, ...getStatusStyle(a.status) }}>{a.status}</span>
                           </div>
                         </div>
                       ))}

@@ -35,6 +35,15 @@ export function getStatusColor(status: string): string {
   return 'text-gray-400 bg-gray-400/10';
 }
 
+export function getStatusStyle(status: string): { background: string; color: string } {
+  const s = (status || '').toLowerCase();
+  if (s === 'booked' || s === 'scheduled')    return { color: '#4f8ef7', background: 'rgba(79,142,247,0.13)' };
+  if (s === 'completed' || s === 'confirmed') return { color: '#4ade80', background: 'rgba(74,222,128,0.13)' };
+  if (s === 'cancelled' || s === 'canceled')  return { color: '#f87171', background: 'rgba(248,113,113,0.13)' };
+  if (s === 'rescheduled')                    return { color: '#fbbf24', background: 'rgba(251,191,36,0.13)' };
+  return { color: '#6b7280', background: 'rgba(107,114,128,0.12)' };
+}
+
 export function getCallStatusStyle(status: string): { background: string; color: string } {
   const s = (status || '').toLowerCase();
   if (s === 'ended' || s === 'completed')

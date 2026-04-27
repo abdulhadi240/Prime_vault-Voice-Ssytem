@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { formatDuration, formatDateTime, getCallStatusStyle } from '@/lib/utils';
+import { formatDuration, formatDateTime, getCallStatusStyle, getStatusStyle } from '@/lib/utils';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
@@ -11,6 +11,21 @@ import { format, subDays } from 'date-fns';
 import { Phone, Clock, BarChart2, CalendarCheck, XCircle, Users, DollarSign } from 'lucide-react';
 
 const COLORS = ['#4f8ef7', '#7c3aed', '#f59e0b', '#10b981', '#ef4444', '#06b6d4'];
+
+function StatusPill({ status, styleOverride }: { status: string; styleOverride?: { background: string; color: string } }) {
+  const { background, color } = styleOverride ?? getStatusStyle(status);
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+      padding: '6px 10px', borderRadius: 6, width: '100%',
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
+      background, color,
+    }}>
+      <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
+      {status || '—'}
+    </div>
+  );
+}
 
 type AnimatedStats = { calls: number; minutes: number; avgDuration: number; booked: number; cancelled: number; customers: number; cost: number };
 
@@ -358,11 +373,7 @@ export default function OverviewPage() {
                 <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {call.summary || '—'}
                 </div>
-                <div style={{ display: 'flex' }}>
-                  <span className="badge" style={{ width: '100%', ...getCallStatusStyle(call.status || 'ended') }}>
-                    {call.status || 'ended'}
-                  </span>
-                </div>
+                <StatusPill status={call.status || 'ended'} styleOverride={getCallStatusStyle(call.status || 'ended')} />
               </div>
             ))}
           </div>

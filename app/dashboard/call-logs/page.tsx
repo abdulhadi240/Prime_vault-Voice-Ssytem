@@ -1,8 +1,23 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase, type CallLog } from '@/lib/supabase';
-import { formatDuration, formatDateTime, getCallStatusStyle } from '@/lib/utils';
+import { formatDuration, formatDateTime, getCallStatusStyle, getStatusStyle } from '@/lib/utils';
 import { Download, Search, ChevronDown } from 'lucide-react';
+
+function StatusPill({ status, styleOverride }: { status: string; styleOverride?: { background: string; color: string } }) {
+  const { background, color } = styleOverride ?? getStatusStyle(status);
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+      padding: '6px 10px', borderRadius: 6, width: '100%',
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
+      background, color,
+    }}>
+      <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
+      {status || '—'}
+    </div>
+  );
+}
 
 export default function CallLogsPage() {
   const [calls, setCalls] = useState<CallLog[]>([]);
@@ -116,11 +131,7 @@ export default function CallLogsPage() {
               </div>
               <div style={{ fontSize: 12 }}>{formatDateTime(call.created_at)}</div>
               <div style={{ fontSize: 12 }}>{formatDuration(call.duration)}</div>
-              <div style={{ display: 'flex' }}>
-                <span className="badge" style={{ width: '100%', ...getCallStatusStyle(call.status || 'ended') }}>
-                  {call.status || 'ended'}
-                </span>
-              </div>
+              <StatusPill status={call.status || 'ended'} styleOverride={getCallStatusStyle(call.status || 'ended')} />
               <div style={{ color: 'var(--muted)', textAlign: 'center' }}>
                 <ChevronDown size={14} style={{ transform: expanded === call.id ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
               </div>
@@ -160,7 +171,7 @@ export default function CallLogsPage() {
                             <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{a.service_type}</div>
                             <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>{formatDateTime(a.scheduled_start)}</div>
                             <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>{a.address}</div>
-                            <span className="badge" style={{ background: '#4f8ef720', color: '#4f8ef7' }}>{a.status}</span>
+                            <StatusPill status={a.status} />
                           </div>
                         );
                       })()

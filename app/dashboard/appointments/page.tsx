@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { supabase, type Appointment } from '@/lib/supabase';
-import { formatDateTime, getStatusColor } from '@/lib/utils';
+import { formatDateTime, getStatusColor, getStatusStyle } from '@/lib/utils';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
 import { List, CalendarDays, Search, ChevronLeft, ChevronRight, KanbanSquare } from 'lucide-react';
 
@@ -14,6 +14,21 @@ const KANBAN_COLUMNS = [
   { status: 'cancelled',   label: 'Cancelled',   color: '#ef4444' },
   { status: 'rescheduled', label: 'Rescheduled', color: '#f59e0b' },
 ] as const;
+
+function StatusPill({ status }: { status: string }) {
+  const { background, color } = getStatusStyle(status);
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+      padding: '6px 10px', borderRadius: 6, width: '100%',
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase',
+      background, color,
+    }}>
+      <span style={{ width: 5, height: 5, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
+      {status || '—'}
+    </div>
+  );
+}
 
 export default function AppointmentsPage() {
   const searchParams = useSearchParams();
@@ -177,9 +192,7 @@ export default function AppointmentsPage() {
                 )}
               </div>
               <div style={{ fontSize: 12, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{appt.address}</div>
-              <div style={{ display: 'flex' }}>
-                <span className={`badge ${getStatusColor(appt.status)}`} style={{ width: '100%' }}>{appt.status}</span>
-              </div>
+              <StatusPill status={appt.status} />
               <div style={{ display: 'flex', gap: 6 }}>
                 {appt.status !== 'completed' && (
                   <button onClick={() => updateStatus(appt.id, 'completed')} disabled={updating === appt.id}
@@ -434,7 +447,7 @@ export default function AppointmentsPage() {
             <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>
               {(hoveredAppt as any).customers?.name || 'Unknown'}
             </span>
-            <span className={`badge ${getStatusColor(hoveredAppt.status)}`} style={{ fontSize: 10 }}>
+            <span className={`badge ${getStatusColor(hoveredAppt.status)}`}>
               {hoveredAppt.status || 'booked'}
             </span>
           </div>
