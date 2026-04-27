@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { formatDuration, formatDateTime, getCallStatusStyle } from '@/lib/utils';
 import {
@@ -16,6 +17,7 @@ type AnimatedStats = { calls: number; minutes: number; avgDuration: number; book
 function easeOutCubic(t: number) { return 1 - Math.pow(1 - t, 3); }
 
 export default function OverviewPage() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [stats, setStats] = useState<AnimatedStats>({ calls: 0, minutes: 0, avgDuration: 0, booked: 0, cancelled: 0, customers: 0, cost: 0 });
   const [animated, setAnimated] = useState<AnimatedStats>({ calls: 0, minutes: 0, avgDuration: 0, booked: 0, cancelled: 0, customers: 0, cost: 0 });
@@ -43,7 +45,7 @@ export default function OverviewPage() {
       const customers = customersRes.data || [];
 
       const totalDuration = calls.reduce((sum: number, c: any) => sum + (c.duration || 0), 0);
-      const totalCostCents = Math.round(calls.reduce((sum: number, c: any) => sum + (c.cost || 0), 0) * 100);
+      const totalCost = calls.reduce((sum: number, c: any) => sum + (parseFloat(c.cost) || 0), 0);
       setStats({
         calls: calls.length,
         minutes: Math.round(totalDuration / 60),
@@ -51,7 +53,7 @@ export default function OverviewPage() {
         booked: appts.filter((a: any) => a.status === 'booked' || a.status === 'scheduled').length,
         cancelled: appts.filter((a: any) => a.status?.toLowerCase() === 'cancelled').length,
         customers: customers.length,
-        cost: totalCostCents,
+        cost: totalCost,
       });
 
       // Calls per day — last 7 days
@@ -141,7 +143,7 @@ export default function OverviewPage() {
     { label: 'Bookings',      value: animated.booked,                       icon: <CalendarCheck size={20} /> },
     { label: 'Cancelled',     value: animated.cancelled,                    icon: <XCircle size={20} /> },
     { label: 'Customers',     value: animated.customers,                    icon: <Users size={20} /> },
-    { label: 'Total Cost',    value: `$${(animated.cost / 100).toFixed(2)}`, icon: <DollarSign size={20} /> },
+    { label: 'Total Cost',    value: `$${animated.cost.toFixed(2)}`,          icon: <DollarSign size={20} /> },
   ];
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -342,7 +344,12 @@ export default function OverviewPage() {
               ))}
             </div>
             {recentCalls.map((call: any) => (
-              <div key={call.id} className="table-row" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 80px 1fr 80px', gap: 12, padding: '12px 12px', alignItems: 'center' }}>
+              <div
+                key={call.id}
+                className="table-row"
+                style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 80px 1fr 80px', gap: 12, padding: '12px 12px', alignItems: 'center', cursor: 'pointer' }}
+                onClick={() => router.push('/dashboard/call-logs')}
+              >
                 <div className="font-mono" style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {call.vapi_call_id?.slice(0, 18)}...
                 </div>
@@ -351,8 +358,8 @@ export default function OverviewPage() {
                 <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {call.summary || '—'}
                 </div>
-                <div>
-                  <span className="badge" style={{ fontSize: 10, ...getCallStatusStyle(call.status || 'ended') }}>
+                <div style={{ display: 'flex' }}>
+                  <span className="badge" style={{ width: '100%', ...getCallStatusStyle(call.status || 'ended') }}>
                     {call.status || 'ended'}
                   </span>
                 </div>

@@ -178,7 +178,7 @@ export default function CustomersPage() {
                           </div>
                           <div style={{ textAlign: 'right' }}>
                             <div style={{ fontSize: 12, color: 'var(--text)' }}>{formatDateTime(a.scheduled_start)}</div>
-                            <span className={`badge ${getStatusColor(a.status)}`} style={{ fontSize: 10, marginTop: 4 }}>{a.status}</span>
+                            <span className={`badge ${getStatusColor(a.status)}`} style={{ marginTop: 4 }}>{a.status}</span>
                           </div>
                         </div>
                       ))}

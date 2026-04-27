@@ -177,8 +177,8 @@ export default function AppointmentsPage() {
                 )}
               </div>
               <div style={{ fontSize: 12, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{appt.address}</div>
-              <div>
-                <span className={`badge ${getStatusColor(appt.status)}`} style={{ fontSize: 10 }}>{appt.status}</span>
+              <div style={{ display: 'flex' }}>
+                <span className={`badge ${getStatusColor(appt.status)}`} style={{ width: '100%' }}>{appt.status}</span>
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 {appt.status !== 'completed' && (

@@ -116,8 +116,8 @@ export default function CallLogsPage() {
               </div>
               <div style={{ fontSize: 12 }}>{formatDateTime(call.created_at)}</div>
               <div style={{ fontSize: 12 }}>{formatDuration(call.duration)}</div>
-              <div>
-                <span className="badge" style={{ fontSize: 10, ...getCallStatusStyle(call.status || 'ended') }}>
+              <div style={{ display: 'flex' }}>
+                <span className="badge" style={{ width: '100%', ...getCallStatusStyle(call.status || 'ended') }}>
                   {call.status || 'ended'}
                 </span>
               </div>
@@ -160,7 +160,7 @@ export default function CallLogsPage() {
                             <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{a.service_type}</div>
                             <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>{formatDateTime(a.scheduled_start)}</div>
                             <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>{a.address}</div>
-                            <span className="badge" style={{ fontSize: 10, background: '#4f8ef720', color: '#4f8ef7' }}>{a.status}</span>
+                            <span className="badge" style={{ background: '#4f8ef720', color: '#4f8ef7' }}>{a.status}</span>
                           </div>
                         );
                       })()
