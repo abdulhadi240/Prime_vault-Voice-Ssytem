@@ -1,10 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase, type Customer, type Appointment, type CallLog } from '@/lib/supabase';
 import { formatDate, formatDateTime, formatDuration, getStatusColor } from '@/lib/utils';
 import { Search, Users, Phone, MapPin } from 'lucide-react';
 
 export default function CustomersPage() {
+  const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filtered, setFiltered] = useState<Customer[]>([]);
   const [search, setSearch] = useState('');
@@ -155,11 +157,17 @@ export default function CustomersPage() {
                   ) : (
                     <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
                       {profile.appointments.map((a, i) => (
-                        <div key={a.id} style={{
-                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                          padding: '13px 18px',
-                          borderBottom: i < profile.appointments.length - 1 ? '1px solid var(--border)' : 'none',
-                        }}>
+                        <div
+                          key={a.id}
+                          onClick={() => router.push(`/dashboard/appointments?highlight=${a.id}`)}
+                          style={{
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            padding: '13px 18px', cursor: 'pointer', transition: 'background 0.15s',
+                            borderBottom: i < profile.appointments.length - 1 ? '1px solid var(--border)' : 'none',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent-dim)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = '')}
+                        >
                           <div>
                             <div style={{ fontSize: 13, fontWeight: 500 }}>{a.service_type}</div>
                             <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{a.issue_description}</div>

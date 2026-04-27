@@ -1,5 +1,6 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { supabase, type Appointment } from '@/lib/supabase';
 import { formatDateTime, getStatusColor } from '@/lib/utils';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
@@ -15,11 +16,15 @@ const KANBAN_COLUMNS = [
 ] as const;
 
 export default function AppointmentsPage() {
+  const searchParams = useSearchParams();
+  const highlightId = searchParams.get('highlight');
+  const highlightRef = useRef<HTMLDivElement | null>(null);
+
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [filtered, setFiltered] = useState<Appointment[]>([]);
   const [statusFilter, setStatusFilter] = useState('All');
   const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'kanban'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'kanban'>(highlightId ? 'list' : 'list');
   const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
   const [calMonth, setCalMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
@@ -37,6 +42,12 @@ export default function AppointmentsPage() {
   }
 
   useEffect(() => { load(); }, []);
+
+  useEffect(() => {
+    if (highlightId && highlightRef.current) {
+      highlightRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [filtered, highlightId]);
 
   useEffect(() => {
     let result = appointments;
@@ -140,7 +151,18 @@ export default function AppointmentsPage() {
           {filtered.length === 0 ? (
             <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>No appointments found</div>
           ) : filtered.map(appt => (
-            <div key={appt.id} className="table-row" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1.5fr 1fr 80px 140px', gap: 12, padding: '14px 20px', alignItems: 'center' }}>
+            <div
+              key={appt.id}
+              ref={appt.id === highlightId ? highlightRef : null}
+              className="table-row"
+              style={{
+                display: 'grid', gridTemplateColumns: '1.5fr 1fr 1.5fr 1fr 80px 140px',
+                gap: 12, padding: '14px 20px', alignItems: 'center',
+                background: appt.id === highlightId ? 'var(--accent-dim)' : undefined,
+                borderLeft: appt.id === highlightId ? '3px solid var(--accent)' : '3px solid transparent',
+                transition: 'background 0.3s',
+              }}
+            >
               <div>
                 <div style={{ fontSize: 13, fontWeight: 500 }}>{(appt as any).customers?.name || 'Unknown'}</div>
                 <div style={{ fontSize: 11, color: 'var(--muted)' }}>{(appt as any).customers?.phone}</div>
