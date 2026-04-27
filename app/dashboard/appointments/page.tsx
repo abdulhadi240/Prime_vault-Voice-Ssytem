@@ -3,16 +3,24 @@ import { useEffect, useState } from 'react';
 import { supabase, type Appointment } from '@/lib/supabase';
 import { formatDateTime, getStatusColor } from '@/lib/utils';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
-import { List, CalendarDays, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { List, CalendarDays, Search, ChevronLeft, ChevronRight, KanbanSquare } from 'lucide-react';
 
 const STATUS_FILTERS = ['All', 'booked', 'completed', 'cancelled', 'rescheduled'];
+
+const KANBAN_COLUMNS = [
+  { status: 'booked',      label: 'Booked',      color: '#4f8ef7' },
+  { status: 'completed',   label: 'Completed',   color: '#10b981' },
+  { status: 'cancelled',   label: 'Cancelled',   color: '#ef4444' },
+  { status: 'rescheduled', label: 'Rescheduled', color: '#f59e0b' },
+] as const;
 
 export default function AppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [filtered, setFiltered] = useState<Appointment[]>([]);
   const [statusFilter, setStatusFilter] = useState('All');
   const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'calendar' | 'kanban'>('list');
+  const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
   const [calMonth, setCalMonth] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -76,7 +84,7 @@ export default function AppointmentsPage() {
         </div>
         {/* View toggle */}
         <div style={{ display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
-          {(['list', 'calendar'] as const).map(mode => (
+          {(['list', 'calendar', 'kanban'] as const).map(mode => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
@@ -84,13 +92,13 @@ export default function AppointmentsPage() {
                 padding: '7px 16px', fontSize: 12, fontWeight: 500, border: 'none', cursor: 'pointer',
                 background: viewMode === mode ? 'var(--accent)' : 'transparent',
                 color: viewMode === mode ? '#fff' : 'var(--muted)',
-                transition: 'all 0.15s', textTransform: 'capitalize',
+                transition: 'all 0.15s',
                 fontFamily: 'var(--font-body)',
               }}
             >
               <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                {mode === 'list' ? <List size={13} /> : <CalendarDays size={13} />}
-                {mode === 'list' ? 'List' : 'Calendar'}
+                {mode === 'list' ? <List size={13} /> : mode === 'calendar' ? <CalendarDays size={13} /> : <KanbanSquare size={13} />}
+                {mode === 'list' ? 'List' : mode === 'calendar' ? 'Calendar' : 'Kanban'}
               </span>
             </button>
           ))}
@@ -251,6 +259,78 @@ export default function AppointmentsPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* ── KANBAN VIEW ── */}
+      {viewMode === 'kanban' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          {KANBAN_COLUMNS.map(col => (
+            <div
+              key={col.status}
+              onDragOver={e => { e.preventDefault(); setDragOverColumn(col.status); }}
+              onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOverColumn(null); }}
+              onDrop={async e => {
+                e.preventDefault();
+                setDragOverColumn(null);
+                const id = e.dataTransfer.getData('text/plain');
+                if (id) { try { await updateStatus(id, col.status); } catch { /* ignore */ } }
+              }}
+              style={{
+                background: 'var(--surface)',
+                border: `1px solid ${dragOverColumn === col.status ? col.color : 'var(--border)'}`,
+                borderRadius: 12,
+                padding: 12,
+                minHeight: 200,
+                transition: 'border-color 0.15s',
+              }}
+            >
+              {/* Column header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid var(--border)' }}>
+                <div style={{ width: 8, height: 8, borderRadius: '50%', background: col.color, flexShrink: 0 }} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)' }}>{col.label}</span>
+                <span style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 'auto' }}>
+                  {appointments.filter(a => (a.status?.toLowerCase() || 'booked') === col.status).length}
+                </span>
+              </div>
+
+              {/* Cards */}
+              {appointments
+                .filter(a => (a.status?.toLowerCase() || 'booked') === col.status)
+                .map(appt => (
+                  <div
+                    key={appt.id}
+                    draggable
+                    onDragStart={e => {
+                      e.dataTransfer.setData('text/plain', appt.id);
+                      e.dataTransfer.effectAllowed = 'move';
+                    }}
+                    style={{
+                      background: 'var(--surface-2)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 8,
+                      padding: '10px 12px',
+                      marginBottom: 8,
+                      cursor: 'grab',
+                      userSelect: 'none',
+                    }}
+                  >
+                    <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
+                      {(appt as any).customers?.name || 'Unknown'}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>{appt.service_type}</div>
+                    <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: appt.address ? 3 : 0 }}>
+                      {formatDateTime(appt.scheduled_start)}
+                    </div>
+                    {appt.address && (
+                      <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {appt.address}
+                      </div>
+                    )}
+                  </div>
+                ))}
+            </div>
+          ))}
         </div>
       )}
     </div>
