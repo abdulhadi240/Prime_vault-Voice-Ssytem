@@ -34,7 +34,7 @@ export default function SettingsPage() {
   );
 
   const Field = ({ label, value, type = 'text', onChange, masked }: any) => (
-    <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 20, alignItems: 'center' }}>
+    <div className="r-field">
       <label style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 500 }}>{label}</label>
       <input
         className="input"
@@ -70,8 +70,8 @@ export default function SettingsPage() {
   );
 
   return (
-    <div className="fade-in" style={{ padding: '28px 32px', maxWidth: 800 }}>
-      <div style={{ marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className="fade-in r-pad" style={{ maxWidth: 800 }}>
+      <div className="r-settings-header" style={{ marginBottom: 28 }}>
         <div>
           <h1 className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>Settings</h1>
           <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 3 }}>Configure your AI voice agent system</p>
@@ -121,7 +121,7 @@ export default function SettingsPage() {
       </Section>
 
       <Section title="System Info">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14 }}>
+        <div className="r-sys-grid">
           {[
             { label: 'Supabase Project', value: 'klsjfqignhsnmzxmovex' },
             { label: 'Supabase Plan', value: 'Free' },

@@ -86,9 +86,9 @@ export default function CallLogsPage() {
   if (loading) return <div style={{ padding: 32, color: 'var(--muted)' }}>Loading...</div>;
 
   return (
-    <div className="fade-in" style={{ padding: '28px 32px' }}>
+    <div className="fade-in r-pad">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+      <div className="r-header" style={{ marginBottom: 24 }}>
         <div>
           <h1 className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>Call Logs</h1>
           <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 3 }}>{calls.length} total calls recorded</p>
@@ -106,7 +106,8 @@ export default function CallLogsPage() {
       </div>
 
       {/* Table */}
-      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
+      <div className="r-table-scroll" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12 }}>
+        <div className="r-table-inner">
         {/* Head */}
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.85fr 0.85fr 70px 110px 36px', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
           {['Customer', 'Call ID', 'Date', 'Duration', 'Status', ''].map((h, i) => (
@@ -139,7 +140,7 @@ export default function CallLogsPage() {
             {/* Expanded detail */}
             {expanded === call.id && (
               <div style={{ padding: '20px 20px 24px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20, marginBottom: 20 }}>
+                <div className="r-call-detail" style={{ marginBottom: 20 }}>
                   {/* Summary */}
                   <div>
                     <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Summary</div>
@@ -197,6 +198,7 @@ export default function CallLogsPage() {
             )}
           </div>
         ))}
+        </div>
       </div>
     </div>
   );

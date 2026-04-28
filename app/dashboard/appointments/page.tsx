@@ -102,9 +102,9 @@ export default function AppointmentsPage() {
   if (loading) return <div style={{ padding: 32, color: 'var(--muted)' }}>Loading...</div>;
 
   return (
-    <div className="fade-in" style={{ padding: '28px 32px' }}>
+    <div className="fade-in r-pad">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+      <div className="r-header" style={{ marginBottom: 24 }}>
         <div>
           <h1 className="font-display" style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>Appointments</h1>
           <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 3 }}>{appointments.length} total appointments</p>
@@ -115,6 +115,7 @@ export default function AppointmentsPage() {
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
+              className="r-view-btn"
               style={{
                 padding: '7px 16px', fontSize: 12, fontWeight: 500, border: 'none', cursor: 'pointer',
                 background: viewMode === mode ? 'var(--accent)' : 'transparent',
@@ -125,7 +126,7 @@ export default function AppointmentsPage() {
             >
               <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 {mode === 'list' ? <List size={13} /> : mode === 'calendar' ? <CalendarDays size={13} /> : <KanbanSquare size={13} />}
-                {mode === 'list' ? 'List' : mode === 'calendar' ? 'Calendar' : 'Kanban'}
+                <span className="r-view-label">{mode === 'list' ? 'List' : mode === 'calendar' ? 'Calendar' : 'Kanban'}</span>
               </span>
             </button>
           ))}
@@ -156,58 +157,60 @@ export default function AppointmentsPage() {
 
       {/* ── LIST VIEW ── */}
       {viewMode === 'list' && (
-        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 1.2fr 0.9fr 110px 120px', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
-            {['Customer', 'Service', 'Date & Time', 'Address', 'Status', 'Actions'].map((h, i) => (
-              <div key={i} style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
+        <div className="r-table-scroll" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12 }}>
+          <div className="r-table-inner-lg">
+            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 1.2fr 0.9fr 110px 120px', gap: 12, padding: '12px 20px', borderBottom: '1px solid var(--border)', background: 'var(--surface-2)' }}>
+              {['Customer', 'Service', 'Date & Time', 'Address', 'Status', 'Actions'].map((h, i) => (
+                <div key={i} style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
+              ))}
+            </div>
+            {filtered.length === 0 ? (
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>No appointments found</div>
+            ) : filtered.map(appt => (
+              <div
+                key={appt.id}
+                ref={appt.id === highlightId ? highlightRef : null}
+                className="table-row"
+                style={{
+                  display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 1.2fr 0.9fr 110px 120px',
+                  gap: 12, padding: '14px 20px', alignItems: 'center',
+                  background: appt.id === highlightId ? 'var(--accent-dim)' : undefined,
+                  borderLeft: appt.id === highlightId ? '3px solid var(--accent)' : '3px solid transparent',
+                  transition: 'background 0.3s',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>{(appt as any).customers?.name || 'Unknown'}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)' }}>{(appt as any).customers?.phone}</div>
+                </div>
+                <div style={{ fontSize: 13 }}>{appt.service_type}</div>
+                <div>
+                  <div style={{ fontSize: 12 }}>{formatDateTime(appt.scheduled_start)}</div>
+                  {appt.issue_description && (
+                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
+                      {appt.issue_description}
+                    </div>
+                  )}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{appt.address}</div>
+                <StatusPill status={appt.status} />
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {appt.status !== 'completed' && (
+                    <button onClick={() => updateStatus(appt.id, 'completed')} disabled={updating === appt.id}
+                      style={{ padding: '4px 8px', borderRadius: 6, fontSize: 11, border: '1px solid var(--success)', color: 'var(--success)', background: 'transparent', cursor: 'pointer' }} title="Complete">✓</button>
+                  )}
+                  {appt.status !== 'cancelled' && (
+                    <button onClick={() => updateStatus(appt.id, 'cancelled')} disabled={updating === appt.id}
+                      style={{ padding: '4px 8px', borderRadius: 6, fontSize: 11, border: '1px solid var(--danger)', color: 'var(--danger)', background: 'transparent', cursor: 'pointer' }} title="Cancel">✕</button>
+                  )}
+                  {appt.status !== 'rescheduled' && (
+                    <button onClick={() => updateStatus(appt.id, 'rescheduled')} disabled={updating === appt.id}
+                      style={{ padding: '4px 8px', borderRadius: 6, fontSize: 11, border: '1px solid var(--warning)', color: 'var(--warning)', background: 'transparent', cursor: 'pointer' }} title="Reschedule">↻</button>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
-          {filtered.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>No appointments found</div>
-          ) : filtered.map(appt => (
-            <div
-              key={appt.id}
-              ref={appt.id === highlightId ? highlightRef : null}
-              className="table-row"
-              style={{
-                display: 'grid', gridTemplateColumns: '1.2fr 0.9fr 1.2fr 0.9fr 110px 120px',
-                gap: 12, padding: '14px 20px', alignItems: 'center',
-                background: appt.id === highlightId ? 'var(--accent-dim)' : undefined,
-                borderLeft: appt.id === highlightId ? '3px solid var(--accent)' : '3px solid transparent',
-                transition: 'background 0.3s',
-              }}
-            >
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 500 }}>{(appt as any).customers?.name || 'Unknown'}</div>
-                <div style={{ fontSize: 11, color: 'var(--muted)' }}>{(appt as any).customers?.phone}</div>
-              </div>
-              <div style={{ fontSize: 13 }}>{appt.service_type}</div>
-              <div>
-                <div style={{ fontSize: 12 }}>{formatDateTime(appt.scheduled_start)}</div>
-                {appt.issue_description && (
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 200 }}>
-                    {appt.issue_description}
-                  </div>
-                )}
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{appt.address}</div>
-              <StatusPill status={appt.status} />
-              <div style={{ display: 'flex', gap: 6 }}>
-                {appt.status !== 'completed' && (
-                  <button onClick={() => updateStatus(appt.id, 'completed')} disabled={updating === appt.id}
-                    style={{ padding: '4px 8px', borderRadius: 6, fontSize: 11, border: '1px solid var(--success)', color: 'var(--success)', background: 'transparent', cursor: 'pointer' }} title="Complete">✓</button>
-                )}
-                {appt.status !== 'cancelled' && (
-                  <button onClick={() => updateStatus(appt.id, 'cancelled')} disabled={updating === appt.id}
-                    style={{ padding: '4px 8px', borderRadius: 6, fontSize: 11, border: '1px solid var(--danger)', color: 'var(--danger)', background: 'transparent', cursor: 'pointer' }} title="Cancel">✕</button>
-                )}
-                {appt.status !== 'rescheduled' && (
-                  <button onClick={() => updateStatus(appt.id, 'rescheduled')} disabled={updating === appt.id}
-                    style={{ padding: '4px 8px', borderRadius: 6, fontSize: 11, border: '1px solid var(--warning)', color: 'var(--warning)', background: 'transparent', cursor: 'pointer' }} title="Reschedule">↻</button>
-                )}
-              </div>
-            </div>
-          ))}
         </div>
       )}
 
@@ -246,7 +249,7 @@ export default function AppointmentsPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
             {/* Empty cells before month start */}
             {Array.from({ length: firstDow }).map((_, i) => (
-              <div key={`e${i}`} style={{ minHeight: 90, borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'var(--bg)' }} />
+              <div key={`e${i}`} className="r-cal-cell" style={{ minHeight: 90, borderRight: '1px solid var(--border)', borderBottom: '1px solid var(--border)', background: 'var(--bg)' }} />
             ))}
 
             {calDays.map((day, idx) => {
@@ -254,12 +257,12 @@ export default function AppointmentsPage() {
               const isToday = isSameDay(day, new Date());
               const col = (firstDow + idx) % 7;
               return (
-                <div key={idx} style={{
+                <div key={idx} className="r-cal-cell" style={{
                   minHeight: 90, padding: '8px', borderRight: col < 6 ? '1px solid var(--border)' : 'none',
                   borderBottom: '1px solid var(--border)',
                   background: isToday ? 'rgba(79,142,247,0.05)' : 'transparent',
                 }}>
-                  <div style={{
+                  <div className="r-cal-num" style={{
                     width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 12, fontWeight: isToday ? 700 : 400,
                     background: isToday ? 'var(--accent)' : 'transparent',
@@ -268,7 +271,7 @@ export default function AppointmentsPage() {
                   }}>{format(day, 'd')}</div>
 
                   {dayAppts.slice(0, 3).map(a => (
-                    <div key={a.id}
+                    <div key={a.id} className="r-cal-event"
                       onMouseEnter={e => { setHoveredAppt(a); setHoverPos({ x: e.clientX, y: e.clientY }); }}
                       onMouseLeave={() => setHoveredAppt(null)}
                       style={{
@@ -281,8 +284,15 @@ export default function AppointmentsPage() {
                       {(a as any).customers?.name?.split(' ')[0] || 'Appt'} · {a.service_type}
                     </div>
                   ))}
+                  {/* Mobile: show colored dots instead of event labels */}
+                  {dayAppts.slice(0, 3).map(a => (
+                    <span key={`dot-${a.id}`} className="r-cal-dot" style={{
+                      background: STATUS_DOT[a.status?.toLowerCase() || ''] || '#6b7280',
+                      display: 'none',
+                    }} />
+                  ))}
                   {dayAppts.length > 3 && (
-                    <div style={{ fontSize: 10, color: 'var(--muted)' }}>+{dayAppts.length - 3} more</div>
+                    <div style={{ fontSize: 10, color: 'var(--muted)' }}>+{dayAppts.length - 3}</div>
                   )}
                 </div>
               );
@@ -303,7 +313,7 @@ export default function AppointmentsPage() {
 
       {/* ── KANBAN VIEW ── */}
       {viewMode === 'kanban' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, alignItems: 'start' }}>
+        <div className="r-kanban">
           {KANBAN_COLUMNS.map(col => {
             const colCards = appointments.filter(a => (a.status?.toLowerCase() || 'booked') === col.status);
             const isDragOver = dragOverColumn === col.status;

@@ -184,7 +184,6 @@ body {
 
 /* ── RESPONSIVE TABLES ── */
 @media (max-width: 768px) {
-  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .stat-grid { grid-template-columns: 1fr 1fr !important; gap: 12px !important; }
   .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
   .page-header h1 { font-size: 20px !important; }
@@ -204,13 +203,13 @@ body {
 
 /* ── TABLES ── */
 table { width: 100%; border-collapse: collapse; }
-thead th { 
-  font-size: 11px; font-weight: 600; color: var(--muted); 
+thead th {
+  font-size: 11px; font-weight: 600; color: var(--muted);
   text-transform: uppercase; letter-spacing: 0.05em;
   padding: 10px 16px; border-bottom: 1px solid var(--border);
   text-align: left; white-space: nowrap;
 }
-tbody td { 
+tbody td {
   padding: 12px 16px; border-bottom: 1px solid var(--border);
   font-size: 13px; color: var(--text); vertical-align: middle;
 }
@@ -229,4 +228,107 @@ tbody tr:last-child td { border-bottom: none; }
 
 /* ── PAGE WRAPPER ── */
 .page-wrap { padding: 28px 32px; }
-@media (max-width: 768px) { .page-wrap { padding: 20px 16px; } }
+@media (max-width: 768px) { .page-wrap { padding: 16px; } }
+
+/* ─────────────────────────────────────────────────────────
+   DASHBOARD RESPONSIVE UTILITIES
+───────────────────────────────────────────────────────── */
+
+/* Page padding */
+.r-pad { padding: 28px 32px; }
+@media (max-width: 768px) { .r-pad { padding: 16px 16px 24px; } }
+
+/* Page header row */
+.r-header { display: flex; align-items: center; justify-content: space-between; }
+@media (max-width: 640px) {
+  .r-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .r-header h1 { font-size: 20px !important; }
+}
+
+/* Horizontal scroll for wide tables */
+.r-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; }
+.r-table-inner { min-width: 600px; }
+.r-table-inner-lg { min-width: 760px; }
+
+/* Stat cards — 4 cols → 2 → 2 */
+.r-stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 900px)  { .r-stat-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px)  { .r-stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+
+/* Charts rows */
+.r-charts-1 { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+.r-charts-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 900px) {
+  .r-charts-1 { grid-template-columns: 1fr; }
+  .r-charts-2 { grid-template-columns: 1fr; }
+}
+
+/* Kanban 4 cols → 2 → 1 */
+.r-kanban { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .r-kanban { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .r-kanban { grid-template-columns: 1fr; } }
+
+/* Billing plans 2 cols → 1 */
+.r-plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 640px) { .r-plans-grid { grid-template-columns: 1fr; } }
+
+/* Billing status card 3 cols → 2 → 1 */
+.r-status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 640px)  { .r-status-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
+@media (max-width: 400px)  { .r-status-grid { grid-template-columns: 1fr; } }
+
+/* Billing top-up row */
+.r-topup-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+
+/* Settings field row */
+.r-field { display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: center; }
+@media (max-width: 640px) { .r-field { grid-template-columns: 1fr; gap: 6px; } }
+
+/* Settings system info grid 2 → 1 */
+.r-sys-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+@media (max-width: 640px) { .r-sys-grid { grid-template-columns: 1fr; } }
+
+/* Settings header */
+.r-settings-header { display: flex; align-items: center; justify-content: space-between; }
+@media (max-width: 600px) { .r-settings-header { flex-direction: column; align-items: flex-start; gap: 12px; } }
+
+/* Customers split panel */
+.r-customers-split { display: flex; height: 100vh; overflow: hidden; }
+.r-customers-list  { width: 340px; flex-shrink: 0; border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+.r-customers-detail { flex: 1; overflow-y: auto; padding: 28px 32px; }
+
+@media (max-width: 768px) {
+  .r-customers-split  { flex-direction: column; height: auto; overflow: visible; }
+  .r-customers-list   { width: 100% !important; border-right: none !important; border-bottom: 1px solid var(--border); max-height: 320px; }
+  .r-customers-detail { padding: 16px !important; height: auto; }
+}
+
+/* Customer profile stats */
+.r-profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+@media (max-width: 640px) { .r-profile-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px)  { .r-profile-stats { grid-template-columns: 1fr; } }
+
+/* Call log expanded detail 3 cols → 1 */
+.r-call-detail { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+@media (max-width: 768px) { .r-call-detail { grid-template-columns: 1fr; gap: 16px; } }
+
+/* Minutes banner */
+.r-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 600px) { .r-banner { flex-direction: column; align-items: flex-start; } }
+
+/* Overview header right section — hide on small mobile */
+@media (max-width: 500px) { .r-overview-right { display: none !important; } }
+
+/* Appointments view toggle — icon-only on mobile */
+@media (max-width: 500px) {
+  .r-view-label { display: none; }
+  .r-view-btn { padding: 7px 10px !important; }
+}
+
+/* Calendar cells smaller on mobile */
+@media (max-width: 640px) {
+  .r-cal-cell { min-height: 64px !important; padding: 4px !important; }
+  .r-cal-cell .r-cal-num { width: 20px !important; height: 20px !important; font-size: 11px !important; }
+  .r-cal-event { display: none !important; }
+  .r-cal-dot { width: 6px !important; height: 6px !important; border-radius: 50%; display: inline-block !important; margin: 1px !important; }
+}

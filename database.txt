@@ -1,0 +1,61 @@
+create table public.customers (
+  id uuid not null default gen_random_uuid (),
+  name text null,
+  phone text null,
+  address text null,
+  created_at timestamp without time zone null default now(),
+  constraint customers_pkey primary key (id),
+  constraint customers_phone_key unique (phone)
+) TABLESPACE pg_default;
+
+
+
+create table public.call_logs (
+  id uuid not null default gen_random_uuid (),
+  vapi_call_id text null,
+  duration numeric null,
+  transcript text null,
+  recording_url text null,
+  summary text null,
+  created_at timestamp without time zone null default now(),
+  cost text null,
+  status text null,
+  customer_id uuid null,
+  appointment_id uuid null,
+  constraint call_logs_pkey primary key (id),
+  constraint call_logs_appointment_id_fkey foreign KEY (appointment_id) references appointments (id),
+  constraint call_logs_customer_id_fkey foreign KEY (customer_id) references customers (id)
+) TABLESPACE pg_default;
+
+
+
+create table public.appointments (
+  id uuid not null default gen_random_uuid (),
+  customer_id uuid null,
+  service_type text null,
+  scheduled_start timestamp without time zone null,
+  scheduled_end timestamp without time zone null,
+  status text null default 'scheduled'::text,
+  google_event_id text null,
+  issue_description text null,
+  address text null,
+  created_at timestamp without time zone null default now(),
+  constraint appointments_pkey primary key (id),
+  constraint appointments_customer_id_fkey foreign KEY (customer_id) references customers (id)
+) TABLESPACE pg_default;
+
+
+create table public.twilio_messages (
+  id uuid not null default gen_random_uuid (),
+  to_number text null,
+  from_number text null,
+  message_body text null,
+  status text null,
+  twilio_sid text null,
+  appointment_id uuid null,
+  created_at timestamp without time zone null default now(),
+  customer_id uuid null,
+  constraint twilio_messages_pkey primary key (id),
+  constraint twilio_messages_appointment_id_fkey foreign KEY (appointment_id) references appointments (id),
+  constraint twilio_messages_customer_id_fkey foreign KEY (customer_id) references customers (id)
+) TABLESPACE pg_default;

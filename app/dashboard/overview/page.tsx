@@ -175,14 +175,14 @@ export default function OverviewPage() {
   if (loading) return <div style={{ padding: 32, color: 'var(--muted)' }}>Loading...</div>;
 
   return (
-    <div className="fade-in" style={{ padding: '28px 32px' }}>
+    <div className="fade-in r-pad">
       {/* Header */}
-      <div style={{ marginBottom: 28, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="r-header" style={{ marginBottom: 28 }}>
         <div>
           <h1 className="font-display" style={{ fontSize: 22, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.02em' }}>Overview</h1>
           <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: 3 }}>Real-time AI agent performance metrics</p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div className="r-overview-right" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {/* Live indicator */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div className="live-dot" />
@@ -215,7 +215,7 @@ export default function OverviewPage() {
       </div>
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div className="r-stat-grid" style={{ marginBottom: 24 }}>
         {STAT_CARDS.map((s, i) => (
           <div
             key={i}
@@ -237,7 +237,7 @@ export default function OverviewPage() {
       </div>
 
       {/* Row 1: Calls per day + Service breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, marginBottom: 20 }}>
+      <div className="r-charts-1" style={{ marginBottom: 20 }}>
         {/* Calls per day */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px' }}>
           <h3 className="font-display" style={{ fontSize: 14, fontWeight: 600, marginBottom: 20 }}>Calls Per Day — Last 7 Days</h3>
@@ -290,7 +290,7 @@ export default function OverviewPage() {
       </div>
 
       {/* Row 2: Outcome chart + Peak hours */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+      <div className="r-charts-2" style={{ marginBottom: 20 }}>
         {/* Call outcomes */}
         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 24px' }}>
           <h3 className="font-display" style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Call Outcomes</h3>
@@ -351,30 +351,32 @@ export default function OverviewPage() {
         {recentCalls.length === 0 ? (
           <p style={{ color: 'var(--muted)', fontSize: 13 }}>No calls logged yet.</p>
         ) : (
-          <div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.85fr 70px 1fr 110px', gap: 12, padding: '0 12px 10px', borderBottom: '1px solid var(--border)' }}>
-              {['Call ID', 'Date', 'Duration', 'Summary', 'Status'].map(h => (
-                <div key={h} style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
+          <div className="r-table-scroll">
+            <div className="r-table-inner">
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.85fr 70px 1fr 110px', gap: 12, padding: '0 12px 10px', borderBottom: '1px solid var(--border)' }}>
+                {['Call ID', 'Date', 'Duration', 'Summary', 'Status'].map(h => (
+                  <div key={h} style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</div>
+                ))}
+              </div>
+              {recentCalls.map((call: any) => (
+                <div
+                  key={call.id}
+                  className="table-row"
+                  style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.85fr 70px 1fr 110px', gap: 12, padding: '12px 12px', alignItems: 'center', cursor: 'pointer' }}
+                  onClick={() => router.push('/dashboard/call-logs')}
+                >
+                  <div className="font-mono" style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {call.vapi_call_id?.slice(0, 18)}...
+                  </div>
+                  <div style={{ fontSize: 12 }}>{formatDateTime(call.created_at)}</div>
+                  <div style={{ fontSize: 12 }}>{formatDuration(call.duration)}</div>
+                  <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {call.summary || '—'}
+                  </div>
+                  <StatusPill status={call.status || 'ended'} styleOverride={getCallStatusStyle(call.status || 'ended')} />
+                </div>
               ))}
             </div>
-            {recentCalls.map((call: any) => (
-              <div
-                key={call.id}
-                className="table-row"
-                style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.85fr 70px 1fr 110px', gap: 12, padding: '12px 12px', alignItems: 'center', cursor: 'pointer' }}
-                onClick={() => router.push('/dashboard/call-logs')}
-              >
-                <div className="font-mono" style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {call.vapi_call_id?.slice(0, 18)}...
-                </div>
-                <div style={{ fontSize: 12 }}>{formatDateTime(call.created_at)}</div>
-                <div style={{ fontSize: 12 }}>{formatDuration(call.duration)}</div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {call.summary || '—'}
-                </div>
-                <StatusPill status={call.status || 'ended'} styleOverride={getCallStatusStyle(call.status || 'ended')} />
-              </div>
-            ))}
           </div>
         )}
       </div>

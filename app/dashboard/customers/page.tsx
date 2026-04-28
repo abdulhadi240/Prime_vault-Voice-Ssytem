@@ -50,9 +50,9 @@ export default function CustomersPage() {
   if (loading) return <div style={{ padding: 32, color: 'var(--muted)' }}>Loading...</div>;
 
   return (
-    <div className="fade-in" style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+    <div className="fade-in r-customers-split">
       {/* Left panel - customer list */}
-      <div style={{ width: 340, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+      <div className="r-customers-list">
         <div style={{ padding: '28px 24px 16px' }}>
           <h1 className="font-display" style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em', marginBottom: 4 }}>Customers</h1>
           <p style={{ color: 'var(--muted)', fontSize: 12 }}>{customers.length} total</p>
@@ -101,7 +101,7 @@ export default function CustomersPage() {
       </div>
 
       {/* Right panel - profile */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '28px 32px' }}>
+      <div className="r-customers-detail">
         {!selected ? (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted)' }}>
             <Users size={48} style={{ marginBottom: 16, opacity: 0.3 }} />
@@ -140,7 +140,7 @@ export default function CustomersPage() {
             ) : (
               <>
                 {/* Stats */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 28 }}>
+                <div className="r-profile-stats" style={{ marginBottom: 28 }}>
                   {[
                     { label: 'Total Appointments', value: profile.appointments.length },
                     { label: 'Total Calls', value: profile.calls.length },

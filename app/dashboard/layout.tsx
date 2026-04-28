@@ -4,13 +4,14 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/lib/theme';
-import { LayoutGrid, Phone, CalendarDays, Users, Settings, Sun, Moon, Menu, X, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutGrid, Phone, CalendarDays, Users, Settings, CreditCard, Sun, Moon, Menu, X, LogOut, ChevronLeft, ChevronRight, AlertTriangle, Zap } from 'lucide-react';
 
 const NAV = [
   { href: '/dashboard/overview',     label: 'Overview',      icon: <LayoutGrid size={18} /> },
   { href: '/dashboard/call-logs',    label: 'Call Logs',     icon: <Phone size={18} /> },
   { href: '/dashboard/appointments', label: 'Appointments',  icon: <CalendarDays size={18} /> },
   { href: '/dashboard/customers',    label: 'Customers',     icon: <Users size={18} /> },
+  { href: '/dashboard/billing',      label: 'Billing',       icon: <CreditCard size={18} /> },
   { href: '/dashboard/settings',     label: 'Settings',      icon: <Settings size={18} /> },
 ];
 
@@ -30,11 +31,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [minutesBalance, setMinutesBalance] = useState<number | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) { router.push('/login'); }
-      else { setUser(session.user); setLoading(false); }
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) { router.push('/login'); return; }
+      setUser(session.user);
+      setLoading(false);
+      const { data: billing } = await supabase
+        .from('billing')
+        .select('minutes_balance')
+        .eq('user_id', session.user.id)
+        .single();
+      if (billing) setMinutesBalance(billing.minutes_balance);
     });
   }, [router]);
 
@@ -329,6 +338,48 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         minHeight: '100vh', overflow: 'auto',
         transition: 'background 0.25s, margin-left 0.25s ease',
       }}>
+        {/* Minutes exhausted banner */}
+        {minutesBalance !== null && minutesBalance <= 0 && pathname !== '/dashboard/billing' && (
+          <div className="r-banner" style={{
+            background: 'rgba(248,113,113,0.1)', borderBottom: '1px solid rgba(248,113,113,0.25)',
+            padding: '10px 16px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--danger)', flexWrap: 'wrap' }}>
+              <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+              <strong>Voice minutes exhausted.</strong>
+              <span style={{ color: 'var(--muted)' }}>AI calls are paused until you top up.</span>
+            </div>
+            <Link href="/dashboard/billing" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, flexShrink: 0,
+              background: 'var(--danger)', color: '#fff',
+              padding: '6px 14px', borderRadius: 7, fontSize: 12, fontWeight: 600,
+              textDecoration: 'none',
+            }}>
+              <Zap size={12} /> Add Minutes
+            </Link>
+          </div>
+        )}
+        {/* Low minutes warning banner */}
+        {minutesBalance !== null && minutesBalance > 0 && minutesBalance <= 20 && pathname !== '/dashboard/billing' && (
+          <div className="r-banner" style={{
+            background: 'rgba(251,191,36,0.1)', borderBottom: '1px solid rgba(251,191,36,0.25)',
+            padding: '10px 16px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--warning)', flexWrap: 'wrap' }}>
+              <AlertTriangle size={14} style={{ flexShrink: 0 }} />
+              <strong>Only {minutesBalance} minutes remaining.</strong>
+              <span style={{ color: 'var(--muted)' }}>Top up to keep your AI agent running.</span>
+            </div>
+            <Link href="/dashboard/billing" style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, flexShrink: 0,
+              background: 'var(--warning)', color: '#000',
+              padding: '6px 14px', borderRadius: 7, fontSize: 12, fontWeight: 600,
+              textDecoration: 'none',
+            }}>
+              <Zap size={12} /> Top Up
+            </Link>
+          </div>
+        )}
         {children}
       </main>
 
