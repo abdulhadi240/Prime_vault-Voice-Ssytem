@@ -14,8 +14,9 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
-export function getStripePriceId(plan: 'starter' | 'pro'): string {
+export function getStripePriceId(plan: 'starter' | 'growth' | 'pro'): string {
   if (plan === 'starter') return process.env.STRIPE_PRICE_STARTER!;
+  if (plan === 'growth') return process.env.STRIPE_PRICE_GROWTH!;
   return process.env.STRIPE_PRICE_PRO!;
 }
 

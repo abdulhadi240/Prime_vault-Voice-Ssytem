@@ -272,6 +272,10 @@ tbody tr:last-child td { border-bottom: none; }
 .r-plans-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 640px) { .r-plans-grid { grid-template-columns: 1fr; } }
 
+/* Billing 3-plan cards: 3 cols → 1 col */
+.r-billing-plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 1100px) { .r-billing-plans { grid-template-columns: 1fr; } }
+
 /* Billing status card 3 cols → 2 → 1 */
 .r-status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 @media (max-width: 640px)  { .r-status-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; } }
@@ -279,6 +283,9 @@ tbody tr:last-child td { border-bottom: none; }
 
 /* Billing top-up row */
 .r-topup-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+
+/* Top-up button row */
+.r-topup-btn-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
 
 /* Settings field row */
 .r-field { display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: center; }

@@ -110,7 +110,7 @@ export default function CustomersPage() {
         ) : (
           <div className="fade-in">
             {/* Profile header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 32, paddingBottom: 24, borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
               <div style={{
                 width: 64, height: 64, borderRadius: '50%',
                 background: 'linear-gradient(135deg, #4f8ef7, #7c3aed)',
@@ -121,7 +121,7 @@ export default function CustomersPage() {
               </div>
               <div>
                 <h2 className="font-display" style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.02em' }}>{selected.name}</h2>
-                <div style={{ display: 'flex', gap: 20, marginTop: 6 }}>
+                <div style={{ display: 'flex', gap: 12, marginTop: 6, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 13, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 5 }}>
                     <Phone size={13} /> {selected.phone}
                   </span>

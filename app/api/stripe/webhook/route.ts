@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { getStripe, getWebhookSecret } from '@/lib/stripe';
-import { upsertBilling, addMinutes, getBillingByStripeCustomer } from '@/lib/billing';
+import { upsertBilling, addMinutes, getBillingByStripeCustomer, getUserEmail } from '@/lib/billing';
 import { getPlan } from '@/lib/plans';
+import {
+  sendSubscriptionStartedEmail,
+  sendTopupSuccessEmail,
+  sendSubscriptionCancelledEmail,
+  sendPaymentFailedEmail,
+  sendRenewalEmail,
+} from '@/lib/email';
 
 function getPeriodEnd(subscription: Stripe.Subscription): string | null {
   const item = subscription.items?.data?.[0];
@@ -10,6 +17,12 @@ function getPeriodEnd(subscription: Stripe.Subscription): string | null {
     return new Date((item as any).current_period_end * 1000).toISOString();
   }
   return null;
+}
+
+async function safeEmail(fn: () => Promise<any>) {
+  try { await fn(); } catch (e: any) {
+    console.error('Email send failed (non-fatal):', e.message);
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -52,10 +65,25 @@ export async function POST(req: NextRequest) {
             current_period_end: periodEnd,
           });
 
-          if (plan) await addMinutes(userId, plan.minutes);
+          if (plan) {
+            await addMinutes(userId, plan.minutes);
+            const email = await getUserEmail(userId);
+            if (email) {
+              await safeEmail(() =>
+                sendSubscriptionStartedEmail(email, plan.name, plan.minutes, plan.priceUsd, periodEnd)
+              );
+            }
+          }
         } else if (session.mode === 'payment') {
           const minutes = parseInt(session.metadata?.topup_minutes || '0', 10);
-          if (minutes > 0) await addMinutes(userId, minutes);
+          const amountUsd = (session.amount_total || 0) / 100;
+          if (minutes > 0) {
+            await addMinutes(userId, minutes);
+            const email = await getUserEmail(userId);
+            if (email) {
+              await safeEmail(() => sendTopupSuccessEmail(email, minutes, amountUsd));
+            }
+          }
         }
         break;
       }
@@ -82,12 +110,19 @@ export async function POST(req: NextRequest) {
         const billing = await getBillingByStripeCustomer(sub.customer as string);
         if (!billing) break;
 
+        const planName = getPlan(billing.plan_id || '')?.name || 'your plan';
+
         await upsertBilling(billing.user_id, {
           stripe_subscription_id: null,
           plan_id: null,
           subscription_status: 'canceled',
           current_period_end: null,
         });
+
+        const email = await getUserEmail(billing.user_id);
+        if (email) {
+          await safeEmail(() => sendSubscriptionCancelledEmail(email, planName));
+        }
         break;
       }
 
@@ -99,16 +134,24 @@ export async function POST(req: NextRequest) {
         if (!billing?.plan_id) break;
 
         const plan = getPlan(billing.plan_id);
-        if (plan) await addMinutes(billing.user_id, plan.minutes);
+        if (!plan) break;
 
+        await addMinutes(billing.user_id, plan.minutes);
+
+        let periodEnd: string | null = null;
         const subId = (invoice as any).subscription as string | undefined;
         if (subId) {
           const sub = await stripe.subscriptions.retrieve(subId);
-          const periodEnd = getPeriodEnd(sub);
+          periodEnd = getPeriodEnd(sub);
           await upsertBilling(billing.user_id, {
             subscription_status: 'active',
             current_period_end: periodEnd,
           });
+        }
+
+        const email = await getUserEmail(billing.user_id);
+        if (email) {
+          await safeEmail(() => sendRenewalEmail(email, plan.name, plan.minutes, periodEnd));
         }
         break;
       }
@@ -117,7 +160,15 @@ export async function POST(req: NextRequest) {
         const invoice = event.data.object as Stripe.Invoice;
         const billing = await getBillingByStripeCustomer(invoice.customer as string);
         if (!billing) break;
+
+        const planName = getPlan(billing.plan_id || '')?.name || 'your plan';
+
         await upsertBilling(billing.user_id, { subscription_status: 'past_due' });
+
+        const email = await getUserEmail(billing.user_id);
+        if (email) {
+          await safeEmail(() => sendPaymentFailedEmail(email, planName));
+        }
         break;
       }
     }

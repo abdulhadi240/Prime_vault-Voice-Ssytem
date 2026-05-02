@@ -1,41 +1,72 @@
+export type TopupPackage = {
+  priceUsd: number;
+  minutes: number;
+};
+
 export type Plan = {
-  id: 'starter' | 'pro';
+  id: 'starter' | 'growth' | 'pro';
   name: string;
   priceUsd: number;
   minutes: number;
-  pricePerMin: number;
+  badge?: string;
   description: string;
   features: string[];
+  topup: TopupPackage;
 };
+
+export const COST_PER_MIN = 0.25;
+export const OVERAGE_RATE = 0.50;
+export const AUTO_TOPUP_THRESHOLD = 0.20;
 
 export const PLANS: Plan[] = [
   {
     id: 'starter',
     name: 'Starter',
-    priceUsd: 30,
-    minutes: 100,
-    pricePerMin: 0.30,
+    priceUsd: 397,
+    minutes: 500,
     description: 'Perfect for small businesses',
-    features: ['100 AI voice minutes/month', 'Call logs & transcripts', 'Appointment management', 'SMS notifications', 'Email support'],
+    features: [
+      '500 AI voice minutes/month',
+      'Call logs & transcripts',
+      'Appointment management',
+      'SMS notifications',
+      'Auto top-up at 20% remaining',
+      'Email support',
+    ],
+    topup: { priceUsd: 99, minutes: 250 },
+  },
+  {
+    id: 'growth',
+    name: 'Growth',
+    priceUsd: 597,
+    minutes: 1000,
+    badge: 'Most Popular',
+    description: 'For growing businesses',
+    features: [
+      '1,000 AI voice minutes/month',
+      'Everything in Starter',
+      'Auto top-up at 20% remaining',
+      'Priority support',
+      'Advanced analytics',
+    ],
+    topup: { priceUsd: 149, minutes: 500 },
   },
   {
     id: 'pro',
     name: 'Pro',
-    priceUsd: 300,
-    minutes: 1000,
-    pricePerMin: 0.30,
-    description: 'For growing businesses',
-    features: ['1,000 AI voice minutes/month', 'Everything in Starter', 'Priority support', 'Advanced analytics', 'Custom integrations'],
+    priceUsd: 997,
+    minutes: 2000,
+    description: 'For high-volume operations',
+    features: [
+      '2,000 AI voice minutes/month',
+      'Everything in Growth',
+      'Auto top-up at 20% remaining',
+      'Custom integrations',
+      'Dedicated support',
+    ],
+    topup: { priceUsd: 299, minutes: 1000 },
   },
 ];
-
-export const TOPUP_RATE_PER_MIN = 0.30;
-export const TOPUP_MIN_USD = 10;
-export const TOPUP_MAX_USD = 1000;
-
-export function minutesFromTopup(amountUsd: number): number {
-  return Math.floor(amountUsd / TOPUP_RATE_PER_MIN);
-}
 
 export function getPlan(id: string): Plan | undefined {
   return PLANS.find(p => p.id === id);

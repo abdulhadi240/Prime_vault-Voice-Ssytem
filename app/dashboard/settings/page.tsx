@@ -47,7 +47,7 @@ export default function SettingsPage() {
   );
 
   const Toggle = ({ label, desc, value, onChange }: any) => (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 680 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', maxWidth: 680, gap: 12, flexWrap: 'wrap' }}>
       <div>
         <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text)' }}>{label}</div>
         <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{desc}</div>

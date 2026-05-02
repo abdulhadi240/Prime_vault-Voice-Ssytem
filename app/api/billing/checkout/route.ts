@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const plan = PLANS.find(p => p.id === planId);
     if (!plan) return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
 
-    const priceId = getStripePriceId(planId as 'starter' | 'pro');
+    const priceId = getStripePriceId(planId as 'starter' | 'growth' | 'pro');
     if (!priceId) return NextResponse.json({ error: 'Price not configured' }, { status: 500 });
 
     const stripe = getStripe();

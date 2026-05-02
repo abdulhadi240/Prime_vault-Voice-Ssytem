@@ -102,7 +102,7 @@ export default function CallLogsPage() {
       {/* Search */}
       <div style={{ marginBottom: 20, position: 'relative' }}>
         <Search size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
-        <input className="input" style={{ paddingLeft: 36, maxWidth: 380 }} placeholder="Search by customer, phone, summary..." value={search} onChange={e => setSearch(e.target.value)} />
+        <input className="input" style={{ paddingLeft: 36, maxWidth: 380, width: '100%' }} placeholder="Search by customer, phone, summary..." value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
       {/* Table */}

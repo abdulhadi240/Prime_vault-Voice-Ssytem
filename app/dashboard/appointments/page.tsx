@@ -136,7 +136,7 @@ export default function AppointmentsPage() {
       {/* Filters (list mode only) */}
       {viewMode === 'list' && (
         <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap', alignItems: 'center' }}>
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {STATUS_FILTERS.map(f => (
               <button key={f} onClick={() => setStatusFilter(f)} style={{
                 padding: '6px 14px', borderRadius: 20, fontSize: 12, fontWeight: 500,
@@ -300,7 +300,7 @@ export default function AppointmentsPage() {
           </div>
 
           {/* Legend */}
-          <div style={{ padding: '12px 24px', borderTop: '1px solid var(--border)', display: 'flex', gap: 20 }}>
+          <div style={{ padding: '12px 24px', borderTop: '1px solid var(--border)', display: 'flex', gap: 20, flexWrap: 'wrap' }}>
             {Object.entries(STATUS_DOT).slice(0, 4).map(([s, c]) => (
               <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <div style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />

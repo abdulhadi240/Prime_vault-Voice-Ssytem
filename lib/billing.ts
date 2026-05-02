@@ -20,6 +20,8 @@ export type BillingRow = {
   plan_id: string | null;
   subscription_status: string | null;
   minutes_balance: number;
+  overage_minutes: number;
+  auto_topup_pending: boolean;
   current_period_end: string | null;
   updated_at: string;
 };
@@ -52,4 +54,10 @@ export async function getBillingByStripeCustomer(stripeCustomerId: string): Prom
     .eq('stripe_customer_id', stripeCustomerId)
     .single();
   return data ?? null;
+}
+
+export async function getUserEmail(userId: string): Promise<string | null> {
+  const { data, error } = await admin().auth.admin.getUserById(userId);
+  if (error || !data?.user?.email) return null;
+  return data.user.email;
 }
